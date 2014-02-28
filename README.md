@@ -11,7 +11,9 @@ dale is a tool for iterating over arrays and objects. Why did I write this inste
 
 dale is written in Javascript. You can use it in the browser by sourcing the main file.
 
-`<script src="dale.js"></script>`
+```html
+<script src="dale.js"></script>
+```
 
 And you also can use it in node.js. To install: `npm install dale`
 
@@ -34,7 +36,7 @@ The main function is `dale.do`. This function does the following:
 
 *Examples:*
 
-```
+```javascript
 dale.do (undefined, some_func)             // returns []
 
 dale.do ([], some_func)                    // returns []
@@ -70,7 +72,7 @@ Notice that for each iteration, the value is passed as the first argument to the
 
 *Examples:*
 
-```
+```javascript
 function is_number (value) {
    if (typeof (value) === 'number') return true;
    else return false;
@@ -88,7 +90,7 @@ The function `dale.times` is an useful shorthand for passing an array of consecu
 
 *Examples*:
 
-```
+```javascript
 dale.times (3, function (v) {return v})       // returns [1, 2, 3]
 dale.times (3, function (v) {return 'a' + v}) // returns ['a1', 'a2', 'a3']
 ```
