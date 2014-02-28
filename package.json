@@ -1,0 +1,21 @@
+{
+   "name": "dale",
+   "version": "1.0.1",
+   "description": "Small tool for iterating over arrays and objects.",
+   "main": "dale.js",
+   "author": "Federico Pereiro <fpereiro@gmail.com>",
+   "contributors": ["Federico Pereiro <fpereiro@gmail.com>"],
+   "license": [{
+      "type": "Public Domain",
+      "url": "http://github.com/fpereiro/dale#license"
+   }],
+   "keywords": ["functional", "loops"],
+   "repository" : {
+      "type": "git",
+      "url": "http://github.com/fpereiro/dale.git"
+   },
+   "bugs": {
+      "url": "http://github.com/fpereiro/dale/issues",
+      "email": "fpereiro@gmail.com"
+   }
+}
