@@ -88,7 +88,7 @@ Please refer to README.md to see what this is about.
    dale.stop_on = function (value, stop_on_value, fun) {
       if (type (fun) !== 'function') return e ('The second argument of dale.do must be a function but instead is', fun, 'with type', type (fun));
 
-      if (value === undefined) return [];
+      if (value === undefined) return undefined;
 
       if (type (value) !== 'array' && type (value) !== 'object') {
          // We wrap the value in an array, so that we can treat it as such.

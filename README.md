@@ -52,7 +52,7 @@ dale.do ({a: 1, b: 2, c: 3}, function (v, k) {return k + v})
 // returns ['a1', 'b2', 'c3']
 
 dale.do ([1, 2, 3], function (v, k) {return v + ' is element #' + k})
-// returns ['1 is element #1', '2 is element #2', '3 is element #3']
+// returns ['1 is element #0', '2 is element #1', '3 is element #2']
 ```
 
 Notice that for each iteration, the value is passed as the first argument to the function and the key as the second. This is because values are used more often than keys, so many times you can just omit the keys argument when writing the `function`.
@@ -78,10 +78,10 @@ function is_number (value) {
    else return false;
 }
 
-dale.do (undefined, true, is_number)           // returns []
-dale.do ([], true, is_number)                  // returns []
-dale.do (['hey', 2, 'ho'], true, is_number)    // returns true
-dale.do (['hey', 'hi', 'ho'], true, is_number) // returns false
+dale.stop_on (undefined, true, is_number)           // returns undefined
+dale.stop_on ([], true, is_number)                  // returns undefined
+dale.stop_on (['hey', 2, 'ho'], true, is_number)    // returns true
+dale.stop_on (['hey', 'hi', 'ho'], true, is_number) // returns false
 ```
 
 ### dale.times
