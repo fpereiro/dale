@@ -97,7 +97,7 @@ dale.times (3, function (v) {return 'a' + v}) // returns ['a1', 'a2', 'a3']
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 120 lines long.
+The complete source code is contained in `dale.js`. It is about 140 lines long.
 
 ## License
 

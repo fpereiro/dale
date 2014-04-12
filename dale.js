@@ -1,5 +1,5 @@
 /*
-dale - v1.0.3
+dale - v1.0.5
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -102,6 +102,28 @@ Please refer to README.md to see what this is about.
          var result = fun (value [key], key);
          if (result === stop_on_value) return stop_on_value;
          else last_result = result;
+      }
+      // If we reached the end of the loop, we return the last result.
+      return last_result;
+   }
+
+   dale.go_on = function (value, go_on_value, fun) {
+      if (type (fun) !== 'function') return e ('The second argument of dale.do must be a function but instead is', fun, 'with type', type (fun));
+
+      if (value === undefined) return undefined;
+
+      if (type (value) !== 'array' && type (value) !== 'object') {
+         // We wrap the value in an array, so that we can treat it as such.
+         value = [value];
+      }
+
+      var last_result;
+      for (var key in value) {
+         // To understand the use of parseInt here, please see the comment in function dale.do above.
+         type (value) === 'array' ? key = parseInt (key) : key;
+         var result = fun (value [key], key);
+         if (result === go_on_value) last_result = result;
+         else return result;
       }
       // If we reached the end of the loop, we return the last result.
       return last_result;
