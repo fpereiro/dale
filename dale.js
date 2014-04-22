@@ -1,5 +1,5 @@
 /*
-dale - v1.0.6
+dale - v1.0.7
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -8,16 +8,16 @@ Please refer to README.md to see what this is about.
 
 (function () {
 
+   // *** SETUP ***
+
    // This code allows us to export the lith in the browser and in the server.
    // Taken from http://backbonejs.org/docs/backbone.html
    var root = this;
    var dale;
-   if (typeof exports !== 'undefined') {
-      dale = exports;
-   }
-   else {
-      dale = root.dale = {};
-   }
+   if (typeof exports !== 'undefined') dale = exports;
+   else                                dale = root.dale = {};
+
+   // *** TEISHI FUNCTIONS ***
 
    /*
       The two functions below (type and is_integer) are copypasted from teishi (https://github.com/fpereiro/teishi). This is because I needed dale when writing teishi more than I needed teishi when writing dale; thus, I decided that teishi should depend on dale. And I don't know if I can elegantly cross-reference both libraries (taking just what I need and avoiding circular dependencies).
@@ -50,6 +50,8 @@ Please refer to README.md to see what this is about.
       if (console) console.log (arguments);
       return false;
    }
+
+   // *** THE THREE MAIN FUNCTIONS ***
 
    dale.do = function (value, fun) {
       if (type (fun) !== 'function') return e ('The second argument of dale.do must be a function but instead is', fun, 'with type', type (fun));

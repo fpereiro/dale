@@ -2,10 +2,14 @@
 
 > "Don't write that stuff until you've tried to live without it and fully understand why you need it." -- [James Hague](http://prog21.dadgum.com/187.html)
 
-dale is a tool for iterating over arrays and objects. Why did I write this instead of using [underscore](https://github.com/jashkenas/underscore) or [lodash](https://github.com/lodash/lodash)? Well, for two reasons:
+dale is a tool for iterating over arrays and objects. Why did I write this instead of using [underscore](https://github.com/jashkenas/underscore) or [lodash](https://github.com/lodash/lodash)? Well, because I want a very small library that only contains the looping constructs that I always need, no more.
 
-1. I want a very small library that only contains the looping functions that I always need, no more.
-2. I want the looping functions to also work when passing them an input that's neither an array nor an object - this object can be interpreted as being an array with either zero or one elements (depending on whether it is undefined or not).
+Small as it is, dale is superior to writing ```for (var a in b)``` in the following respects:
+
+1. It can iterate an input that's neither an array nor an object - this object can be interpreted as being an array with either zero or one elements (depending on whether it is undefined or not).
+2. Array iterator variables (the ```a``` in ```for (var a in b)```) are numbers instead of strings, so you don't have to recur to ```parseInt``` to do math with the iterator.
+3. Allows you to exit the loop prematurely if a certain value is returned by an iteration. This allows for code that's more clear as well as more efficient.
+4. Returns an array of results, so you can use it within object literals. This is probably the greatest advantage of them all.
 
 ## Installation
 
@@ -97,7 +101,7 @@ dale.times (3, function (v) {return 'a' + v}) // returns ['a1', 'a2', 'a3']
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 120 lines long.
+The complete source code is contained in `dale.js`. It is about 130 lines long.
 
 ## License
 
