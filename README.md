@@ -9,7 +9,7 @@ Small as it is, dale is superior to writing ```for (var a in b)``` in the follow
 1. It can iterate an input that's neither an array nor an object - this object can be interpreted as being an array with either zero or one elements (depending on whether it is undefined or not).
 2. Array iterator variables (the ```a``` in ```for (var a in b)```) are numbers instead of strings, so you don't have to recur to ```parseInt``` to do math with the iterator.
 3. Allows you to exit the loop prematurely if a certain value is returned by an iteration. This allows for code that's more clear as well as more efficient.
-4. Returns an array of results, so you can use it within object literals. This is probably the greatest advantage of them all.
+4. It is a function, so you can invoke it within object literals to generate parts of them in a very compact and elegant way. This is probably the greatest advantage of them all.
 
 ## Installation
 
