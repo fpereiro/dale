@@ -51,7 +51,7 @@ Please refer to README.md to see what this is about.
       return false;
    }
 
-   // *** THE FOUR MAIN FUNCTIONS ***
+   // *** THE THREE FUNCTIONS ***
 
    dale.do = function (value, fun) {
       if (type (fun) !== 'function') return e ('The second argument of dale.do must be a function but instead is', fun, 'with type', type (fun));
