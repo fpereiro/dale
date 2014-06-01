@@ -1,5 +1,5 @@
 /*
-dale - v1.0.7
+dale - v1.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -10,7 +10,7 @@ Please refer to README.md to see what this is about.
 
    // *** SETUP ***
 
-   // This code allows us to export the lith in the browser and in the server.
+   // This code allows us to export dale in the browser and in the server.
    // Taken from http://backbonejs.org/docs/backbone.html
    var root = this;
    var dale;
@@ -51,7 +51,7 @@ Please refer to README.md to see what this is about.
       return false;
    }
 
-   // *** THE THREE MAIN FUNCTIONS ***
+   // *** THE FOUR MAIN FUNCTIONS ***
 
    dale.do = function (value, fun) {
       if (type (fun) !== 'function') return e ('The second argument of dale.do must be a function but instead is', fun, 'with type', type (fun));
@@ -88,7 +88,7 @@ Please refer to README.md to see what this is about.
    }
 
    dale.stop_on = function (value, stop_on_value, fun) {
-      if (type (fun) !== 'function') return e ('The second argument of dale.do must be a function but instead is', fun, 'with type', type (fun));
+      if (type (fun) !== 'function') return e ('The second argument of dale.stop_on must be a function but instead is', fun, 'with type', type (fun));
 
       if (value === undefined) return undefined;
 
@@ -109,15 +109,13 @@ Please refer to README.md to see what this is about.
       return last_result;
    }
 
-   dale.times = function (times, fun) {
-      if (is_integer (times) === false) {
-         return e ('First argument to dale.times must be an integer but instead is', fun);
-      }
-      var array = [];
-      for (var i = 1; i <= times; i++) {
-         array.push (i);
-      }
-      return dale.do (array, fun);
+   dale.fil = function (value, filtered_value, fun) {
+      if (type (fun) !== 'function') return e ('The second argument of dale.fil must be a function but instead is', fun, 'with type', type (fun));
+      var output = [];
+      dale.do (dale.do (value, fun), function (v) {
+         if (v !== filtered_value) output.push (v);
+      });
+      return output;
    }
 
 }).call (this);

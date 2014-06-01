@@ -88,20 +88,30 @@ dale.stop_on (['hey', 2, 'ho'], true, is_number)    // returns true
 dale.stop_on (['hey', 'hi', 'ho'], true, is_number) // returns false
 ```
 
-### dale.times
+### dale.fil
 
-The function `dale.times` is an useful shorthand for passing an array of consecutive numbers as the `value` of `dale.do`.
+The function `dale.fil` is like `dale.do`, except that it filters out a certain value. It is useful when you only want certain values to appear in the returned array.
 
-*Examples*:
+`dale.fil` takes three arguments: a `value`, a `filtered_value` (which can be anything) and a `function`.
+
+`dale.fil` always returns an array, with less or the same amount of elements as those contained in the `value. This function represents a middle ground between `dale.do` (which returns as many elements as included in the `value`) and `dale.stop_on`, which always returns one element.
+
+*Examples:*
 
 ```javascript
-dale.times (3, function (v) {return v})       // returns [1, 2, 3]
-dale.times (3, function (v) {return 'a' + v}) // returns ['a1', 'a2', 'a3']
+dale.fil ([true, false, false, true], true, function (v) {return v});
+// returns [false, false]
+
+dale.fil ([{id: 1}, {id: 8}, {id: 14}], false, function (v) {
+   if (v.id < 10) return v;
+   else return false;
+});
+// returns [{id: 1}, {id: 8}]
 ```
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 130 lines long.
+The complete source code is contained in `dale.js`. It is about 120 lines long.
 
 ## License
 

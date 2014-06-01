@@ -1,6 +1,6 @@
 {
    "name": "dale",
-   "version": "1.0.7",
+   "version": "1.1.0",
    "description": "Small tool for iterating over arrays and objects.",
    "main": "dale.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",
