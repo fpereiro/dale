@@ -63,7 +63,7 @@ Notice that for each iteration, the value is passed as the first argument to the
 
 ### dale.stop\_on
 
-`dale.stop_on` is a function very similar to `dale.do`. The main difference is that it can stop the iterative process when it finds a specific value.
+`dale.stop_on` is a function very similar to `dale.do`. The main difference is that it can stop the iterative process when it finds a specific value, and that it returns the last value processed.
 
 - It receives an extra argument. Hence, the input to `dale.stop_on` is:
    1. A `value` (same than `dale.do`)
@@ -94,7 +94,7 @@ The function `dale.fil` is like `dale.do`, except that it filters out a certain 
 
 `dale.fil` takes three arguments: a `value`, a `filtered_value` (which can be anything) and a `function`.
 
-`dale.fil` always returns an array, with less or the same amount of elements as those contained in the `value. This function represents a middle ground between `dale.do` (which returns as many elements as included in the `value`) and `dale.stop_on`, which always returns one element.
+`dale.fil` always returns an array, with less or the same amount of elements as those contained in the `value`. This function represents a middle ground between `dale.do` (which returns as many elements as included in the `value`) and `dale.stop_on`, which always returns one element.
 
 *Examples:*
 
