@@ -1,7 +1,7 @@
 {
    "name": "dale",
-   "version": "1.1.0",
-   "description": "Small tool for iterating over arrays and objects.",
+   "version": "2.0.0",
+   "description": "Small tool for iteration.",
    "main": "dale.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",
    "contributors": ["Federico Pereiro <fpereiro@gmail.com>"],
@@ -9,7 +9,7 @@
       "type": "Public Domain",
       "url": "http://github.com/fpereiro/dale#license"
    }],
-   "keywords": ["functional", "loops"],
+   "keywords": ["functional", "loops", "iteration"],
    "repository" : {
       "type": "git",
       "url": "http://github.com/fpereiro/dale.git"

@@ -1,121 +1,86 @@
 /*
-dale - v1.1.0
+dale - v2.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
-
-Please refer to README.md to see what this is about.
 */
 
 (function () {
 
    // *** SETUP ***
 
-   // This code allows us to export dale in the browser and in the server.
-   // Taken from http://backbonejs.org/docs/backbone.html
-   var root = this;
-   var dale;
-   if (typeof exports !== 'undefined') dale = exports;
-   else                                dale = root.dale = {};
+   var isNode = typeof exports === 'object';
 
-   // *** TEISHI FUNCTIONS ***
+   if (isNode) var dale = exports;
+   else        var dale = window.dale = {};
 
-   /*
-      The two functions below (type and is_integer) are copypasted from teishi (https://github.com/fpereiro/teishi). This is because I needed dale when writing teishi more than I needed teishi when writing dale; thus, I decided that teishi should depend on dale. And I don't know if I can elegantly cross-reference both libraries (taking just what I need and avoiding circular dependencies).
-   */
-
-   // Taken from http://javascript.crockford.com/remedial.html and modified to add detection of regexes.
+   // The function below is copypasted from teishi (https://github.com/fpereiro/teishi). This is because I needed dale when writing teishi more than I needed teishi when writing dale; thus, I decided that teishi should depend on dale. And I don't know if I can elegantly cross-reference both libraries (taking just what I need and avoiding circular dependencies).
    function type (value) {
       var type = typeof value;
+      if (type === 'number') {
+         if      (isNaN (value))      type = 'nan';
+         else if (! isFinite (value)) type = 'infinity';
+         else if (value % 1 === 0)    type = 'integer';
+         else                         type = 'float';
+      }
       if (type === 'object') {
-         if (value) {
-            if (Object.prototype.toString.call (value) == '[object Array]') {
-               type = 'array';
-            }
-            if (value instanceof RegExp) {
-               type = 'regex';
-            }
-         } else {
-            type = 'null';
-         }
+         if (value === null)                                               type = 'null';
+         if (Object.prototype.toString.call (value) === '[object Array]')  type = 'array';
+         if (Object.prototype.toString.call (value) === '[object RegExp]') type = 'regex';
       }
       return type;
    }
 
-   function is_integer (value) {
-      return type (value) === 'number' && (value % 1 === 0);
-   }
+   // All five dale functions are very similar. I've factored out the common elements in the function below, which is for internal use only. Notice the FUNCTION CORE section below, which comprises the core differences between the functions. Notice that dale.keys is implemented below as a special form of dale.do, so the function below is actually concerned with the other four functions.
+   function make (what) {
+      return function (value) {
+         var fun         = what === 'do' ? arguments [1] : arguments [2];
+         var filterValue = arguments [1];
+         // We check the type of fun.
+         if (type (fun) !== 'function') {
+            console.log ((what === 'do' ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            return false;
+         }
+         // We don't check the type of filterValue, because it can be anything, even undefined.
 
-   // Error reporting function.
-   function e () {
-      if (console) console.log (arguments);
-      return false;
-   }
+         // We setup the output variable. For dale.do and dale.fil, we always return an array. For dale.stopOn and dale.stopOnNot, we always return a single element.
+         var output = (what === 'do' || what === 'fil') ? [] : undefined;
 
-   // *** THE THREE FUNCTIONS ***
+         // For any function, passing undefined as a value returns the default value (which can be either an empty array or undefined).
+         if (value === undefined) return output;
 
-   dale.do = function (value, fun) {
-      if (type (fun) !== 'function') return e ('The second argument of dale.do must be a function but instead is', fun, 'with type', type (fun));
+         // If the value is neither an object or an array, we wrap it in an array so that we can treat it as such using a for loop.
+         if (type (value) !== 'array' && type (value) !== 'object') value = [value];
 
-      // Output is always an array.
-      var output = [];
+         for (var key in value) {
+            // We apply parseInt on the key passed to the function in the case that we're dealing with an array. This is because javascript returns stringified numeric iterators when looping an array, instead of numeric keys.
+            key = type (value) === 'array' ? parseInt (key) : key;
 
-      if (value === undefined) return output;
+            var result = fun (value [key], key);
 
-      if (type (value) !== 'array' && type (value) !== 'object') {
-         // We wrap the value in an array, so that we can treat it as such.
-         value = [value];
+            // FUNCTION CORE
+            if      (what === 'do')        output.push (result);
+            else if (what === 'fil') {
+               // If 'result' is equal to 'filterValue', it is not pushed to the 'output' array.
+               if (result !== filterValue) output.push (result);
+            }
+            else {
+               // 'stopOn' and 'stopOnNot' can make the function to return early, depending on the relationship between 'result' and 'filterValue'.
+               if      (what === 'stopOn'    && result === filterValue) return result;
+               else if (what === 'stopOnNot' && result !== filterValue) return result;
+               else    output = result;
+            }
+            // END OF FUNCTION CORE
+         }
+         return output;
       }
-
-      for (var key in value) {
-         /*
-            We apply parseInt on the key passed to the function in the case that we're dealing with an array.
-            For some reason, javascript returns stringified numeric iterators when looping an array, instead of numeric keys:
-
-            This code:
-               for (var iterator in [1, 2, 3]) {
-                  console.log (iterator, typeof iterator)
-               }
-
-            Prints:
-               0 string
-               1 string
-               2 string
-         */
-         type (value) === 'array' ? key = parseInt (key) : key;
-         output.push (fun (value [key], key));
-      }
-      return output;
    }
 
-   dale.stop_on = function (value, stop_on_value, fun) {
-      if (type (fun) !== 'function') return e ('The second argument of dale.stop_on must be a function but instead is', fun, 'with type', type (fun));
+   // *** THE FIVE FUNCTIONS ***
 
-      if (value === undefined) return undefined;
+   dale.do        = make ('do');
+   dale.fil       = make ('fil');
+   dale.stopOn    = make ('stopOn');
+   dale.stopOnNot = make ('stopOnNot');
+   dale.keys      = function (value) {return dale.do (value, function (v, k) {return k})};
 
-      if (type (value) !== 'array' && type (value) !== 'object') {
-         // We wrap the value in an array, so that we can treat it as such.
-         value = [value];
-      }
-
-      var last_result;
-      for (var key in value) {
-         // To understand the use of parseInt here, please see the comment in function dale.do above.
-         type (value) === 'array' ? key = parseInt (key) : key;
-         var result = fun (value [key], key);
-         if (result === stop_on_value) return stop_on_value;
-         else last_result = result;
-      }
-      // If we reached the end of the loop, we return the last result.
-      return last_result;
-   }
-
-   dale.fil = function (value, filtered_value, fun) {
-      if (type (fun) !== 'function') return e ('The second argument of dale.fil must be a function but instead is', fun, 'with type', type (fun));
-      var output = [];
-      dale.do (dale.do (value, fun), function (v) {
-         if (v !== filtered_value) output.push (v);
-      });
-      return output;
-   }
-
-}).call (this);
+}) ();
