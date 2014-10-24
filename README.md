@@ -202,7 +202,7 @@ This function, just like `dale.stopOnNot` below, has two qualities that distingu
    - Takes an `input`, a `stopOn value` and a `function`.
    - Just like `dale.do`, it iterates over the `input`. Two things can happen:
       - If the result of this application **is equal** to the `stopOn value`, the result is returned and no further iteration is performed.
-      - If the result of this application is **not** equal to the `stopOn value`, the iteration continues.
+      - If the result of this application **is not equal** to the `stopOn value`, the iteration continues.
    - If the `input` is iterated completely without finding the `stopOn value`, the result of the last application is returned.
    - If the `input` has zero elements (because it is an empty object, empty array, or `undefined`, `dale.stopOn` returns `undefined`.
 
@@ -213,16 +213,16 @@ function isNumber (value) {
    else return false;
 }
 
-dale.stopOn ([2, 3, 4], false, isNumber)          // returns true
+dale.stopOn ([2, 3, 4],       false, isNumber)    // returns true
 dale.stopOn ([2, 'trois', 4], false, isNumber)    // returns false
-dale.stopOn ([], true, isNumber)                  // returns undefined
-dale.stopOn (undefined, true, isNumber)           // returns undefined
+dale.stopOn ([],              true,  isNumber)    // returns undefined
+dale.stopOn (undefined,       true,  isNumber)    // returns undefined
 
 ```
 
 ### `dale.stopOnNot`
 
-`dale.stopOnNot` is the complementary function to `dale.stopOn`. The only difference is that it stops when it finds a value that is **not** equal to the comparison value (which we name `stopOnNot value`.
+`dale.stopOnNot` is the complementary function to `dale.stopOn`. The only difference is that it stops when it finds a value that is **not** equal to the comparison value (which we name `stopOnNot value`).
 
 ```javascript
 
@@ -231,9 +231,9 @@ function returnIfNotNumber (value) {
    else return value;
 }
 
-dale.stopOnNot ([2, 3, 4],       true, returnIfNotNumber)          // returns true
-dale.stopOnNot ([2, 'trois', 4], true, returnIfNotNumber)          // returns 'trois'
-dale.stopOn ([],                 true, returnIfNotNumber)          // returns undefined
+dale.stopOnNot ([2, 3, 4],       true, returnIfNotNumber)    // returns true
+dale.stopOnNot ([2, 'trois', 4], true, returnIfNotNumber)    // returns 'trois'
+dale.stopOnNot ([],              true, returnIfNotNumber)    // returns undefined
 
 ```
 
