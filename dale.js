@@ -34,7 +34,7 @@ Written by Federico Pereiro (fpereiro@gmail.com) and released into the public do
    function make (what) {
       return function (value) {
          var fun         = what === 'do' ? arguments [1] : arguments [2];
-         var filterValue = arguments [1];
+         var filterValue = what === 'do' ? undefined     : arguments [1];
          // We check the type of fun.
          if (type (fun) !== 'function') {
             console.log ((what === 'do' ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
