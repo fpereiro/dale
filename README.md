@@ -194,10 +194,6 @@ Notice that `dale.keys` always returns an array with zero or more elements (each
 
 ### `dale.stopOn`
 
-This function, just like `dale.stopOnNot` below, has two qualities that distinguish it from the other functions:
-- It can stop the iteration before reaching the end of the `input`.
-- It returns a single result, instead of an array of results.
-
 `dale.stopOn`, for stopping the iteration when finding a certain value:
    - Takes an `input`, a `stopOn value` and a `function`.
    - Just like `dale.do`, it iterates over the `input`. Two things can happen:
@@ -205,6 +201,10 @@ This function, just like `dale.stopOnNot` below, has two qualities that distingu
       - If the result of this application **is not equal** to the `stopOn value`, the iteration continues.
    - If the `input` is iterated completely without finding the `stopOn value`, the result of the last application is returned.
    - If the `input` has zero elements (because it is an empty object, empty array, or `undefined`, `dale.stopOn` returns `undefined`.
+
+This function, just like `dale.stopOnNot` below, has two qualities that distinguish it from the other functions:
+- It can stop the iteration before reaching the end of the `input`.
+- It returns a single result, instead of an array of results.
 
 ```javascript
 
