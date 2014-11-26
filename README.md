@@ -36,7 +36,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    for (var i in input) {
       console.log ('Element #' + (i + 1) + ' is ' + input [i]);
-   });
+   }
 
    // This loop will print:
    //    Element #01 is a
@@ -60,19 +60,23 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    var input = [1, 2, 'clank', 4];
 
+   var output = [];
+
    for (var i in input) {
       if (typeof (input [i]) !== 'number') break;
-      else input [i] = input [i] * 10;
+      else output.push (input [i] * 10);
    }
 
-   // input will now be [10, 20, 'clank', 4]
+   // output will be [10, 20]
 
-   input = dale.stopOn (input, false, function (v, k) {
-      if (typeof (v) === false) return false;
-      else return v * 10;
+   output = [];
+
+   dale.stopOn (input, false, function (v, k) {
+      if (typeof (v) !== 'number') return false;
+      else output.push (v * 10);
    });
 
-   // input will now be [10, 20, 'clank', 4]
+   // output will be [10, 20]
 
    ```
 
@@ -166,7 +170,7 @@ var members = [
    {name: 'Helmut', active: true}
 ];
 
-dale.do (members, false, function (v) {
+dale.fil (members, false, function (v) {
    if (v.active === false) return false;
    else return {name: v.name};
 });
@@ -239,8 +243,194 @@ dale.stopOnNot ([],              true, returnIfNotNumber)    // returns undefine
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 90 lines long.
+The complete source code is contained in `dale.js`. It is about 80 lines long.
+
+Below is the annotated source.
+
+```javascript
+/*
+dale - v2.1.0
+
+Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
+
+Please refer to readme.md to read the annotated source.
+*/
+```
+
+### Setup
+
+We wrap the entire file in a self-executing lambda function. This practice is usually named *the javascript module pattern*. The purpose of it is to wrap our code in a closure and hence avoid making our local variables exceed their scope, as well as avoiding unwanted references to local variables from other scripts.
+
+```javascript
+(function () {
+```
+
+Since this file must run both in the browser and in node.js, we define a variable `isNode` to check where we are. The `exports` object only exists in node.js.
+
+```javascript
+   var isNode = typeof exports === 'object';
+```
+
+This is the most succinct form I found to export an object containing all the public members (functions and constants) of a module.
+
+```javascript
+   if (isNode) var dale = exports;
+   else        var dale = window.dale = {};
+```
+
+The `type` function below is <del>copypasted</del> taken from [teishi](https://github.com/fpereiro/teishi). This is because I needed dale when writing teishi more than I needed teishi when writing dale. Thus, I decided that teishi should depend on dale. And I don't know if I can elegantly cross-reference both libraries, taking just what I need and avoiding circular dependencies.
+
+The purpose of `type` is to create an improved version of `typeof`. The improvements are two:
+
+- Distinguish between `object`, `array`, `regex` and `null` (all of which return `object` in `typeof`).
+- Distinguish between types of numbers: `nan`, `infinity`, `integer` and `float` (all of which return `number` in `typeof`).
+
+`type` takes a single argument (of any type, naturally) and returns a string which can be any of: `nan`, `infinity`, `integer`, `float`, `array`, `object`, `function`, `string`, `regex`, `null` and `undefined`.
+
+```javascript
+   function type (value) {
+      var type = typeof value;
+      if (type === 'number') {
+         if      (isNaN (value))      type = 'nan';
+         else if (! isFinite (value)) type = 'infinity';
+         else if (value % 1 === 0)    type = 'integer';
+         else                         type = 'float';
+      }
+      if (type === 'object') {
+         if (value === null)                                               type = 'null';
+         if (Object.prototype.toString.call (value) === '[object Array]')  type = 'array';
+         if (Object.prototype.toString.call (value) === '[object RegExp]') type = 'regex';
+      }
+      return type;
+   }
+```
+
+### The main function
+
+All five functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
+
+`make` function receives a `what` argument (can be any of `'do'`, `'fil'`, `'stopOn'`, `'stopOnNot'`). It will then return one of the dale functions we need.
+
+`dale.keys` is implemented below as a special form of `dale.do`, so the function below is actually concerned with the other four functions.
+
+```javascript
+   function make (what) {
+      return function (input) {
+```
+
+All dale functions receive a `fun` as their last argument. In the case of `dale.do`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stopOn` and `dale.stopOnNot`, we specify the `filterValue`/`stopOnValue`/`stopOnNotValue` as the second argument (we'll name it `filterValue` in the code), hence the `fun` is the third argument.
+
+
+```javascript
+         var fun         = what === 'do' ? arguments [1] : arguments [2];
+         var filterValue = what === 'do' ? undefined     : arguments [1];
+```
+
+We check the type of the arguments. Since `input` and `filterValue` can be anything, we just need to check that `fun` is indeed a function.
+
+If `fun` is not a function, we log an error and return `false`.
+
+```javascript
+         if (type (fun) !== 'function') {
+            console.log ((what === 'do' ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            return false;
+         }
+```
+
+We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.stopOn` and `dale.stopOnNot`, we always return a single element - hence the default output will be `undefined`.
+
+```javascript
+         var output = (what === 'do' || what === 'fil') ? [] : undefined;
+```
+
+For any dale function, if the `input` is `undefined`, we return the default `output`. Notice we didn't execute the `fun`.
+
+```javascript
+         if (input === undefined) return output;
+```
+
+If the value is neither an object or an array, we wrap it in an array so that we can treat it as an array with a single element.
+
+```javascript
+         if (type (input) !== 'array' && type (input) !== 'object') input = [input];
+```
+
+The loop to end all loops:
+
+```javascript
+         for (var key in input) {
+```
+
+If `input` is an array, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
+
+```javascript
+            key = type (input) === 'array' ? parseInt (key) : key;
+```
+
+`input [key]` is the item currently being read by the loop (let's call it `value`). We apply the `value` and the `key` to the `fun`, and store the result in a variable.
+
+Notice that the `fun` receives the `value` as the first argument and the `key` as the second. This inversion is useful since usually the `fun` needs the `value` but not the `key`. In this case, with this argument ordering you can write `function (v) {...}` instead of `function (k, v) {...}`.
+
+```javascript
+            var result = fun (input [key], key);
+```
+
+For the case of `dale.do`, we just push `result` into `output`.
+
+```javascript
+            if      (what === 'do')        output.push (result);
+```
+
+For the case of `dale.fil`, if `result` is different from `filterValue`, we push it into `output`.
+
+```javascript
+            else if (what === 'fil') {
+               if (result !== filterValue) output.push (result);
+            }
+```
+
+If we are here, we are dealing with `stopOn` or `stopOnNot`.
+
+For the case of `stopOn`, if the `result` is equal to the `filterValue`, we return `result` to break the loop. For the case of `stopOn`, if the `result` is **not** equal to the `filterValue`, we return `result` and also break the loop.
+
+If the loop wasn't broken, we set `output` to `result`.
+
+```javascript
+            else {
+               if      (what === 'stopOn'    && result === filterValue) return result;
+               else if (what === 'stopOnNot' && result !== filterValue) return result;
+               else    output = result;
+            }
+```
+
+We close the loop and return `output`.
+
+```javascript
+         }
+         return output;
+      }
+   }
+```
+
+### The five functions
+
+We create each of the dale functions. `dale.keys` is simply a lambda function that passes its `input` to `dale.do`, using a `fun` that only returns its `key`.
+
+```javascript
+   dale.do        = make ('do');
+   dale.fil       = make ('fil');
+   dale.stopOn    = make ('stopOn');
+   dale.stopOnNot = make ('stopOnNot');
+   dale.keys      = function (input) {return dale.do (input, function (v, k) {return k})};
+```
+
+We close the module.
+
+```javascript
+}) ();
+```
 
 ## License
 
 lith is written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
+
