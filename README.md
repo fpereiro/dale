@@ -309,7 +309,7 @@ The purpose of `type` is to create an improved version of `typeof`. The improvem
 
 All five functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
 
-`make` function receives a `what` argument (can be any of `'do'`, `'fil'`, `'stopOn'`, `'stopOnNot'`). It will then return one of the dale functions we need.
+`make` function receives a `what` argument (can be any of `'do'`, `'fil'`, `'stopOn'`, `'stopOnNot'`). It will then return the corresponding dale function.
 
 `dale.keys` is implemented below as a special form of `dale.do`, so the function below is actually concerned with the other four functions.
 
@@ -343,7 +343,7 @@ We set up the `output` variable. For `dale.do` and `dale.fil`, we always return 
          var output = (what === 'do' || what === 'fil') ? [] : undefined;
 ```
 
-For any dale function, if the `input` is `undefined`, we return the default `output`. Notice we didn't execute the `fun`.
+For any dale function, if the `input` is `undefined`, we return the default `output`. Notice that in this case, the function returns without executing the `fun` even once.
 
 ```javascript
          if (input === undefined) return output;
@@ -389,14 +389,17 @@ For the case of `dale.fil`, if `result` is different from `filterValue`, we push
             }
 ```
 
-If we are here, we are dealing with `stopOn` or `stopOnNot`.
+If we are inside the conditional below, we are dealing with `stopOn` or `stopOnNot`.
+
+```javascript
+            else {
+```
 
 For the case of `stopOn`, if the `result` is equal to the `filterValue`, we return `result` to break the loop. For the case of `stopOn`, if the `result` is **not** equal to the `filterValue`, we return `result` and also break the loop.
 
 If the loop wasn't broken, we set `output` to `result`.
 
 ```javascript
-            else {
                if      (what === 'stopOn'    && result === filterValue) return result;
                else if (what === 'stopOnNot' && result !== filterValue) return result;
                else    output = result;
@@ -432,5 +435,4 @@ We close the module.
 
 ## License
 
-lith is written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
-
+dale is written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
