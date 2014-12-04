@@ -271,7 +271,7 @@ Since this file must run both in the browser and in node.js, we define a variabl
    var isNode = typeof exports === 'object';
 ```
 
-This is the most succinct form I found to export an object containing all the public members (functions and constants) of a module.
+This is the most succinct form I found to export an object containing all the public members (functions and constants) of a javascript module.
 
 ```javascript
    if (isNode) var dale = exports;
