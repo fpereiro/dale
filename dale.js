@@ -1,5 +1,5 @@
 /*
-dale - v2.1.3
+dale - v2.1.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
