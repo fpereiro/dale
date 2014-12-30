@@ -241,15 +241,37 @@ dale.stopOnNot ([],              true, returnIfNotNumber)    // returns undefine
 
 ```
 
+## Inherited properties
+
+By default, dale functions iterate an object, it will only iterate the keys that belong to the object directly, ignoring inherited keys.
+
+```javascript
+   var o1 = {foo: 42}
+   var o2 = Object.create (o1);  // o2 inherits from o1
+
+   console.log (dale.keys (o1)); // returns ['foo']
+   console.log (dale.keys (o2)); // returns []
+
+   console.log (dale.do (o1, function (v) {return v}));       // returns [42]
+   console.log (dale.do (o2, function (v) {return v}));       // returns []
+```
+
+If you want dale functions to iterate the inherited properties of an object, pass `true` as the last argument to the function.
+
+```javascript
+   console.log (dale.keys (o2, true))                         // returns ['foo']
+   console.log (dale.do (o2, function (v) {return v}, true)); // returns [42]
+```
+
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 80 lines long.
+The complete source code is contained in `dale.js`. It is about 90 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.1.2
+dale - v2.1.3
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -282,7 +304,7 @@ The `type` function below is <del>copypasted</del> taken from [teishi](https://g
 
 The purpose of `type` is to create an improved version of `typeof`. The improvements are two:
 
-- Distinguish between `object`, `array`, `regex` and `null` (all of which return `object` in `typeof`).
+- Distinguish between `object`, `array`, `regex`, `date` and `null` (all of which return `object` in `typeof`).
 - Distinguish between types of numbers: `nan`, `infinity`, `integer` and `float` (all of which return `number` in `typeof`).
 
 `type` takes a single argument (of any type, naturally) and returns a string which can be any of: `nan`, `infinity`, `integer`, `float`, `array`, `object`, `function`, `string`, `regex`, `null` and `undefined`.
@@ -298,6 +320,7 @@ The purpose of `type` is to create an improved version of `typeof`. The improvem
       }
       if (type === 'object') {
          if (value === null)                                               type = 'null';
+         if (Object.prototype.toString.call (value) === '[object Date]')   type = 'date';
          if (Object.prototype.toString.call (value) === '[object Array]')  type = 'array';
          if (Object.prototype.toString.call (value) === '[object RegExp]') type = 'regex';
       }
@@ -326,6 +349,13 @@ All dale functions receive a `fun` as their last argument. In the case of `dale.
          var filterValue = what === 'do' ? undefined     : arguments [1];
 ```
 
+We set the `inherit` flag, which if enabled will iterate through the inherited properties of an object.
+
+If the last argument passed to the function is `true`, we set it to `true`, otherwise we set it to `false`. Note that every dale function (with the exception of `dale.keys`, which is defined as a special case outside of `make`) receives `fun` as its last required argument. This means that a boolean flag can not be confused with `fun`.
+
+```javascript
+         var inherit     = arguments [arguments.length - 1] === true ? true : false;
+```
 We check the type of the arguments. Since `input` and `filterValue` can be anything, we just need to check that `fun` is indeed a function.
 
 If `fun` is not a function, we log an error and return `false`.
@@ -359,6 +389,17 @@ The loop to end all loops:
 
 ```javascript
          for (var key in input) {
+```
+
+If three conditions are met simultaneously, we skip the current `key`, by issuing `continue`. These conditions are:
+- `input` is an object.
+- `inherit` is not set to `true`.
+- `input` has `key` as an inherited property.
+
+Note that we use `Object.prototype.hasOwnProperty`, in case `input.hasOwnProperty` [was overwritten with another function](http://stackoverflow.com/a/12017703).
+
+```javascript
+            if (type (input) === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 ```
 
 If `input` is an array, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
@@ -417,14 +458,14 @@ We close the loop and return `output`.
 
 ### The five functions
 
-We create each of the dale functions. `dale.keys` is simply a lambda function that passes its `input` to `dale.do`, using a `fun` that only returns its `key`.
+We create each of the dale functions. `dale.keys` is simply a lambda function that passes `input` and `inherit` to `dale.do`, using a `fun` that only returns its `key`.
 
 ```javascript
    dale.do        = make ('do');
    dale.fil       = make ('fil');
    dale.stopOn    = make ('stopOn');
    dale.stopOnNot = make ('stopOnNot');
-   dale.keys      = function (input) {return dale.do (input, function (v, k) {return k})};
+   dale.keys      = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
 ```
 
 We close the module.

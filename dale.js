@@ -1,5 +1,5 @@
 /*
-dale - v2.1.2
+dale - v2.1.3
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -25,6 +25,7 @@ Please refer to readme.md to read the annotated source.
       }
       if (type === 'object') {
          if (value === null)                                               type = 'null';
+         if (Object.prototype.toString.call (value) === '[object Date]')   type = 'date';
          if (Object.prototype.toString.call (value) === '[object Array]')  type = 'array';
          if (Object.prototype.toString.call (value) === '[object RegExp]') type = 'regex';
       }
@@ -38,6 +39,7 @@ Please refer to readme.md to read the annotated source.
 
          var fun         = what === 'do' ? arguments [1] : arguments [2];
          var filterValue = what === 'do' ? undefined     : arguments [1];
+         var inherit     = arguments [arguments.length - 1] === true ? true : false;
 
          if (type (fun) !== 'function') {
             console.log ((what === 'do' ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
@@ -51,6 +53,8 @@ Please refer to readme.md to read the annotated source.
          if (type (input) !== 'array' && type (input) !== 'object') input = [input];
 
          for (var key in input) {
+
+            if (type (input) === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 
             key = type (input) === 'array' ? parseInt (key) : key;
 
@@ -79,6 +83,6 @@ Please refer to readme.md to read the annotated source.
    dale.fil       = make ('fil');
    dale.stopOn    = make ('stopOn');
    dale.stopOnNot = make ('stopOnNot');
-   dale.keys      = function (input) {return dale.do (input, function (v, k) {return k})};
+   dale.keys      = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
 
 }) ();

@@ -1,5 +1,5 @@
 /*
-dale - v2.1.2
+dale - v2.1.3
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -130,5 +130,16 @@ Run the examples by either including the script in a webpage or by running `node
    console.log (dale.stopOnNot ([2, 3, 4],       true, returnIfNotNumber));    // returns true
    console.log (dale.stopOnNot ([2, 'trois', 4], true, returnIfNotNumber));    // returns 'trois'
    console.log (dale.stopOnNot ([],              true, returnIfNotNumber));    // returns undefined
+
+   var o1 = {foo: 42}
+   var o2 = Object.create (o1); // o2 inherits from o1
+
+   console.log (dale.keys (o1));       // returns ['foo']
+   console.log (dale.keys (o2));       // returns []
+   console.log (dale.keys (o2, true)); // returns ['foo']
+
+   console.log (dale.do (o1, function (v) {return v}));       // returns [42]
+   console.log (dale.do (o2, function (v) {return v}));       // returns []
+   console.log (dale.do (o2, function (v) {return v}, true)); // returns [42]
 
 }) ();
