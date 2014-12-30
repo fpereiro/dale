@@ -80,7 +80,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    ```
 
-4. When iterating an object, by default it will only consider the keys that are not inherited - and this default can be overriden by passing an extra argument. This means that you don't have to invoke `hasOwnProperty` anymore.
+4. When iterating an object, by default dale will only take into account the keys that are not inherited - and this default can be overriden by passing an extra argument.
 
 5. It is functional, so you can invoke dale functions within object literals to generate parts of them in a very compact and elegant way. This is probably the greatest advantage of them all.
 
