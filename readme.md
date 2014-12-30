@@ -249,18 +249,18 @@ By default, dale functions iterate an object, it will only iterate the keys that
    var o1 = {foo: 42}
    var o2 = Object.create (o1);  // o2 inherits from o1
 
-   console.log (dale.keys (o1)); // returns ['foo']
-   console.log (dale.keys (o2)); // returns []
+   dale.keys (o1); // returns ['foo']
+   dale.keys (o2); // returns []
 
-   console.log (dale.do (o1, function (v) {return v}));       // returns [42]
-   console.log (dale.do (o2, function (v) {return v}));       // returns []
+   dale.do (o1, function (v) {return v});       // returns [42]
+   dale.do (o2, function (v) {return v});       // returns []
 ```
 
 If you want dale functions to iterate the inherited properties of an object, pass `true` as the last argument to the function.
 
 ```javascript
-   console.log (dale.keys (o2, true))                         // returns ['foo']
-   console.log (dale.do (o2, function (v) {return v}, true)); // returns [42]
+   dale.keys (o2, true)                         // returns ['foo']
+   dale.do (o2, function (v) {return v}, true); // returns [42]
 ```
 
 ## Source code
@@ -351,7 +351,7 @@ All dale functions receive a `fun` as their last argument. In the case of `dale.
 
 We set the `inherit` flag, which if enabled will iterate through the inherited properties of an object.
 
-If the last argument passed to the function is `true`, we set it to `true`, otherwise we set it to `false`. Note that every dale function (with the exception of `dale.keys`, which is defined as a special case outside of `make`) receives `fun` as its last required argument. This means that a boolean flag can not be confused with `fun`.
+If the last argument passed to the function is `true`, we set it to `true`, otherwise we set it to `false`. Note that every dale function (with the exception of `dale.keys`, which is defined as a special case outside of `make`) receives `fun` as its last required argument. This means that a boolean flag cannot be possibly confused with `fun`.
 
 ```javascript
          var inherit     = arguments [arguments.length - 1] === true ? true : false;
@@ -391,7 +391,7 @@ The loop to end all loops:
          for (var key in input) {
 ```
 
-If three conditions are met simultaneously, we skip the current `key`, by issuing `continue`. These conditions are:
+If three conditions are met simultaneously, we skip the current `key`, by issuing a `continue` statement. These conditions are:
 - `input` is an object.
 - `inherit` is not set to `true`.
 - `input` has `key` as an inherited property.
