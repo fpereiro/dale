@@ -1,5 +1,5 @@
 /*
-dale - v2.1.4
+dale - v2.1.5
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -50,13 +50,15 @@ Please refer to readme.md to read the annotated source.
 
          if (input === undefined) return output;
 
-         if (type (input) !== 'array' && type (input) !== 'object') input = [input];
+         var inputType = type (input);
+
+         if (inputType !== 'array' && inputType !== 'object') input = [input];
 
          for (var key in input) {
 
-            if (type (input) === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
+            if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 
-            key = type (input) === 'array' ? parseInt (key) : key;
+            key = inputType === 'array' ? parseInt (key) : key;
 
             var result = fun (input [key], key);
 

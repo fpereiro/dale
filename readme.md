@@ -273,7 +273,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.1.4
+dale - v2.1.5
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -381,10 +381,16 @@ For any dale function, if the `input` is `undefined`, we return the default `out
          if (input === undefined) return output;
 ```
 
+We save the type of `input` in a local variable `inputType`. This memoization is very important for optimization purposes, since `inputType` will be invoked within the inner loop of the function.
+
+```javascript
+         var inputType = type (input);
+```
+
 If the value is neither an object or an array, we wrap it in an array so that we can treat it as an array with a single element.
 
 ```javascript
-         if (type (input) !== 'array' && type (input) !== 'object') input = [input];
+         if (inputType !== 'array' && inputType !== 'object') input = [input];
 ```
 
 The loop to end all loops:
@@ -401,13 +407,13 @@ If three conditions are met simultaneously, we skip the current `key`, by issuin
 Note that we use `Object.prototype.hasOwnProperty`, in case `input.hasOwnProperty` [was overwritten with another function](http://stackoverflow.com/a/12017703).
 
 ```javascript
-            if (type (input) === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
+            if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 ```
 
 If `input` is an array, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
 
 ```javascript
-            key = type (input) === 'array' ? parseInt (key) : key;
+            key = inputType === 'array' ? parseInt (key) : key;
 ```
 
 `input [key]` is the item currently being read by the loop (let's call it `value`). We apply the `value` and the `key` to the `fun`, and store the result in a variable.
