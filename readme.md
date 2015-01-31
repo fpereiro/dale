@@ -80,7 +80,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    ```
 
-4. When iterating an object, by default dale will only take into account the keys that are not inherited. This means that when iterating objects, by default, you never have to do a `hasOwnProperty` check. This default can be overriden by passing an extra argument.
+4. When iterating an object, by default dale will only take into account the keys that are not inherited. This means that when iterating objects you never again have to do a `hasOwnProperty` check. This default can be overriden by passing an extra argument.
 
 5. It is functional, so you can invoke dale functions within object literals to generate parts of them in a very compact and elegant way. This is probably the greatest advantage of them all.
 
@@ -282,7 +282,7 @@ dale:                                   4x
 dale, without the hasOwnProperty check: 3x
 ```
 
-This means that dale takes 50% more time when iterating arrays and between 200% and 300% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale- especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of the `for` loop.
+This means that dale takes 50% more time when iterating arrays and between 200% and 300% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of the `for` loop.
 
 I am pretty sure that the difference between the performance for arrays and objects has to do with the underlying implementation of javascript, since the code paths for arrays and objects in dale are almost identical.
 
