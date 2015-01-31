@@ -80,7 +80,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    ```
 
-4. When iterating an object, by default dale will only take into account the keys that are not inherited - and this default can be overriden by passing an extra argument.
+4. When iterating an object, by default dale will only take into account the keys that are not inherited. This means that when iterating objects, by default, you never have to do a `hasOwnProperty` check. This default can be overriden by passing an extra argument.
 
 5. It is functional, so you can invoke dale functions within object literals to generate parts of them in a very compact and elegant way. This is probably the greatest advantage of them all.
 
@@ -265,6 +265,31 @@ If you want dale functions to iterate the inherited properties of an object, pas
    dale.do (o2, function (v) {return v}, true); // returns [42]
 ```
 
+## Performance
+
+dale is slower than a `for` loop. The (very approximate) factors are the following:
+
+```
+Iterating arrays:
+
+for:  1x
+dale: 1.5x
+
+Iterating objects:
+
+for:                                    1x
+dale:                                   4x
+dale, without the hasOwnProperty check: 3x
+```
+
+This means that dale takes 50% more time when iterating arrays and between 200% and 300% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale- especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of the `for` loop.
+
+I am pretty sure that the difference between the performance for arrays and objects has to do with the underlying implementation of javascript, since the code paths for arrays and objects in dale are almost identical.
+
+The benchmark is included in `example.js` - to execute it just run that file, or open it in a browser. The benchmark attempts to make many iterations without almost any computation, to focus on the raw speed of the underlying loop (be it a real loop or dale's layer on top of it).
+
+The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome and Firefox, the performance with objects is similar than in node. However, in Firefox, array iteration in dale performs at 2x, while in Google Chrome it performs at a whooping 0.5x! The devil is in the implementation.
+
 ## Source code
 
 The complete source code is contained in `dale.js`. It is about 90 lines long.
@@ -273,7 +298,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.1.5
+dale - v2.1.6
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -413,7 +438,7 @@ Note that we use `Object.prototype.hasOwnProperty`, in case `input.hasOwnPropert
 If `input` is an array, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
 
 ```javascript
-            key = inputType === 'array' ? parseInt (key) : key;
+            if (inputType === 'array') key = parseInt (key);
 ```
 
 `input [key]` is the item currently being read by the loop (let's call it `value`). We apply the `value` and the `key` to the `fun`, and store the result in a variable.
