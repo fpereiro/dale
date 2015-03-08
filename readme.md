@@ -80,7 +80,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    ```
 
-4. When iterating an object, by default dale will only take into account the keys that are not inherited. This means that when iterating objects you never again have to do a `hasOwnProperty` check. This default can be overriden by passing an extra argument.
+4. When iterating an object, by default dale will only take into account the keys that are not inherited. This means that when iterating objects you never again have to do a `hasOwnProperty` check. This default can be overriden [by passing an extra argument](https://github.com/fpereiro/dale#inherited-properties).
 
 5. It is functional, so you can invoke dale functions within object literals to generate parts of them in a very compact and elegant way. This is probably the greatest advantage of them all.
 
@@ -267,7 +267,7 @@ If you want dale functions to iterate the inherited properties of an object, pas
 
 ## Performance
 
-dale is slower than a `for` loop. The (very approximate) factors are the following:
+dale is necessarily slower than a `for` loop, since it consists of a wrapper on top of it. The (very approximate) performance factors are the following:
 
 ```
 Iterating arrays:
@@ -298,7 +298,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.1.6
+dale - v2.1.7
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -334,7 +334,7 @@ The purpose of `type` is to create an improved version of `typeof`. The improvem
 - Distinguish between `object`, `array`, `regex`, `date` and `null` (all of which return `object` in `typeof`).
 - Distinguish between types of numbers: `nan`, `infinity`, `integer` and `float` (all of which return `number` in `typeof`).
 
-`type` takes a single argument (of any type, naturally) and returns a string which can be any of: `nan`, `infinity`, `integer`, `float`, `array`, `object`, `function`, `string`, `regex`, `null` and `undefined`.
+`type` takes a single argument (of any type, naturally) and returns a string which can be any of: `nan`, `infinity`, `integer`, `float`, `object`, `array`, `regex`, `date`, `null`, `function`, `string` and `undefined`.
 
 ```javascript
    function type (value) {
