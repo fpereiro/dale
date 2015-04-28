@@ -1,6 +1,6 @@
 {
    "name": "dale",
-   "version": "2.1.7",
+   "version": "2.1.8",
    "description": "Small tool for iteration.",
    "main": "dale.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",

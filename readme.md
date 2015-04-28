@@ -278,17 +278,17 @@ dale: 1.5x
 Iterating objects:
 
 for:                                    1x
-dale:                                   4x
-dale, without the hasOwnProperty check: 3x
+dale:                                   3.25x
+dale, without the hasOwnProperty check: 2.25x
 ```
 
-This means that dale takes 50% more time when iterating arrays and between 200% and 300% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of the `for` loop.
+This means that dale takes 50% more time when iterating arrays and between 125% and 225% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of the `for` loop.
 
 I am pretty sure that the difference between the performance for arrays and objects has to do with the underlying implementation of javascript, since the code paths for arrays and objects in dale are almost identical.
 
 The benchmark is included in `example.js` - to execute it just run that file, or open it in a browser. The benchmark attempts to make many iterations without almost any computation, to focus on the raw speed of the underlying loop (be it a real loop or dale's layer on top of it).
 
-The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome and Firefox, the performance with objects is similar than in node. However, in Firefox, array iteration in dale performs at 2x, while in Google Chrome it performs at a whooping 0.5x! The devil is in the implementation.
+The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome, dale's performance with objects is somewhat better than in node (1.5x). In Firefox, dale's performance with objects is considerably slower (5x-7x). Interestingly enough, in both browsers dale's performance with arrays is also about 1.5x.
 
 ## Source code
 
@@ -298,7 +298,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.1.7
+dale - v2.1.8
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -339,19 +339,19 @@ The purpose of `type` is to create an improved version of `typeof`. The improvem
 ```javascript
    function type (value) {
       var type = typeof value;
+      if (type !== 'object' && type !== 'number') return type;
       if (type === 'number') {
-         if      (isNaN (value))      type = 'nan';
-         else if (! isFinite (value)) type = 'infinity';
-         else if (value % 1 === 0)    type = 'integer';
-         else                         type = 'float';
+         if      (isNaN (value))      return 'nan';
+         else if (! isFinite (value)) return 'infinity';
+         else if (value % 1 === 0)    return 'integer';
+         else                         return 'float';
       }
-      if (type === 'object') {
-         if (value === null)                                               type = 'null';
-         if (Object.prototype.toString.call (value) === '[object Date]')   type = 'date';
-         if (Object.prototype.toString.call (value) === '[object Array]')  type = 'array';
-         if (Object.prototype.toString.call (value) === '[object RegExp]') type = 'regex';
-      }
-      return type;
+      if (value === null) return 'null';
+      type = Object.prototype.toString.call (value);
+      if (type === '[object Object]') return 'object';
+      if (type === '[object Array]')  return 'array';
+      if (type === '[object RegExp]') return 'regex';
+      if (type === '[object Date]')   return 'date';
    }
 ```
 

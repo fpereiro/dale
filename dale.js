@@ -1,5 +1,5 @@
 /*
-dale - v2.1.7
+dale - v2.1.8
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -17,19 +17,19 @@ Please refer to readme.md to read the annotated source.
 
    function type (value) {
       var type = typeof value;
+      if (type !== 'object' && type !== 'number') return type;
       if (type === 'number') {
-         if      (isNaN (value))      type = 'nan';
-         else if (! isFinite (value)) type = 'infinity';
-         else if (value % 1 === 0)    type = 'integer';
-         else                         type = 'float';
+         if      (isNaN (value))      return 'nan';
+         else if (! isFinite (value)) return 'infinity';
+         else if (value % 1 === 0)    return 'integer';
+         else                         return 'float';
       }
-      if (type === 'object') {
-         if (value === null)                                               type = 'null';
-         if (Object.prototype.toString.call (value) === '[object Date]')   type = 'date';
-         if (Object.prototype.toString.call (value) === '[object Array]')  type = 'array';
-         if (Object.prototype.toString.call (value) === '[object RegExp]') type = 'regex';
-      }
-      return type;
+      if (value === null) return 'null';
+      type = Object.prototype.toString.call (value);
+      if (type === '[object Object]') return 'object';
+      if (type === '[object Array]')  return 'array';
+      if (type === '[object RegExp]') return 'regex';
+      if (type === '[object Date]')   return 'date';
    }
 
    // *** THE MAIN FUNCTION ***
