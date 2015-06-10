@@ -298,7 +298,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.1.8
+dale - v2.1.9
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -331,13 +331,31 @@ The `type` function below is <del>copypasted</del> taken from [teishi](https://g
 
 The purpose of `type` is to create an improved version of `typeof`. The improvements are two:
 
-- Distinguish between `object`, `array`, `regex`, `date` and `null` (all of which return `object` in `typeof`).
 - Distinguish between types of numbers: `nan`, `infinity`, `integer` and `float` (all of which return `number` in `typeof`).
+- Distinguish between `array`, `date`, `null`, `regex` and `object` (all of which return `object` in `typeof`).
 
-`type` takes a single argument (of any type, naturally) and returns a string which can be any of: `nan`, `infinity`, `integer`, `float`, `object`, `array`, `regex`, `date`, `null`, `function`, `string` and `undefined`.
+For the other types that `typeof` recognizes successfully, `type` will return the same value as `typeof`.
+
+`type` takes a single argument (of any type, naturally) and returns a string with its type.
+
+The possible types of a value can be grouped into three:
+- *Values which `typeof` detects appropriately*: `boolean`, `string`, `undefined`, `function`.
+- *Values which `typeof` considers `number`*: `nan`, `infinity`, `integer`, `float`.
+- *values which `typeof` considers `object`*: `array`, `date`, `null`, `regex` and `object`.
+
+If you pass `true` as a second argument, `type` will distinguish between *true objects* (ie: object literals) and other objects. If you pass an object that belongs to a class, `type` will return the lowercased class name instead.
+
+The clearest example of this is the `arguments` object:
 
 ```javascript
-   function type (value) {
+type (arguments)        // returns 'object'
+type (arguments, true)  // returns 'arguments'
+```
+
+Below is the function.
+
+```javascript
+   var type = function (value, objectType) {
       var type = typeof value;
       if (type !== 'object' && type !== 'number') return type;
       if (type === 'number') {
@@ -346,12 +364,11 @@ The purpose of `type` is to create an improved version of `typeof`. The improvem
          else if (value % 1 === 0)    return 'integer';
          else                         return 'float';
       }
-      if (value === null) return 'null';
-      type = Object.prototype.toString.call (value);
-      if (type === '[object Object]') return 'object';
-      if (type === '[object Array]')  return 'array';
-      if (type === '[object RegExp]') return 'regex';
-      if (type === '[object Date]')   return 'date';
+      type = Object.prototype.toString.call (value).replace ('[object ', '').replace (']', '').toLowerCase ();
+      if (type === 'array' || type === 'date' || type === 'null') return type;
+      if (type === 'regexp') return 'regex';
+      if (objectType) return type;
+      return 'object';
    }
 ```
 
@@ -364,7 +381,7 @@ All five functions of dale have many common elements. As a result, I've factored
 `dale.keys` is implemented below as a special form of `dale.do`, so the function below is actually concerned with the other four functions.
 
 ```javascript
-   function make (what) {
+   var make = function (what) {
       return function (input) {
 ```
 

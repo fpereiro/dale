@@ -1,5 +1,5 @@
 /*
-dale - v2.1.8
+dale - v2.1.9
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -15,7 +15,7 @@ Please refer to readme.md to read the annotated source.
    if (isNode) var dale = exports;
    else        var dale = window.dale = {};
 
-   function type (value) {
+   var type = function (value, objectType) {
       var type = typeof value;
       if (type !== 'object' && type !== 'number') return type;
       if (type === 'number') {
@@ -24,17 +24,16 @@ Please refer to readme.md to read the annotated source.
          else if (value % 1 === 0)    return 'integer';
          else                         return 'float';
       }
-      if (value === null) return 'null';
-      type = Object.prototype.toString.call (value);
-      if (type === '[object Object]') return 'object';
-      if (type === '[object Array]')  return 'array';
-      if (type === '[object RegExp]') return 'regex';
-      if (type === '[object Date]')   return 'date';
+      type = Object.prototype.toString.call (value).replace ('[object ', '').replace (']', '').toLowerCase ();
+      if (type === 'array' || type === 'date' || type === 'null') return type;
+      if (type === 'regexp') return 'regex';
+      if (objectType) return type;
+      return 'object';
    }
 
    // *** THE MAIN FUNCTION ***
 
-   function make (what) {
+   var make = function (what) {
       return function (input) {
 
          var fun         = what === 'do' ? arguments [1] : arguments [2];
