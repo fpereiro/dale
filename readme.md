@@ -54,6 +54,23 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    ```
 
+   This also is the case for `arguments` pseudo-arrays:
+
+   ```javascript
+   var argumentsTest = function (A, B, C) {
+      dale.do (arguments, function (v, k) {
+         console.log ('Element #' + (k + 1) + ' is ' + v);
+      });
+   }
+
+   // The function invocation below will print:
+   //    Element #1 is a
+   //    Element #2 is b
+   //    Element #3 is c
+
+   argumentsTest ('a', 'b', 'c');
+   ```
+
 3. Provides functions (`stopOn` and `stopOnNot`) that allow you to exit the loop prematurely if a certain value is returned by an iteration. This allows for code that's more clear as well as more efficient.
 
    ```javascript
@@ -160,9 +177,8 @@ dale.do (undefined, function (v, k) {return v + 1})
 
 ```javascript
 
-dale.fil ([{id: 1}, {id: 8}, {id: 14}], false, function (v) {
+dale.fil ([{id: 1}, {id: 8}, {id: 14}], undefined, function (v) {
    if (v.id < 10) return v;
-   else return false;
 });
 // returns [{id: 1}, {id: 8}]
 
@@ -172,9 +188,8 @@ var members = [
    {name: 'Helmut', active: true}
 ];
 
-dale.fil (members, false, function (v) {
-   if (v.active === false) return false;
-   else return {name: v.name};
+dale.fil (members, undefined, function (v) {
+   if (v.active) return {name: v.name};
 });
 // returns [{name: 'Pepe'}, {name: 'Helmut'}]
 
@@ -214,7 +229,7 @@ This function, just like `dale.stopOnNot` below, has two qualities that distingu
 
 ```javascript
 
-function isNumber (value) {
+var isNumber = function (value) {
    if (typeof (value) === 'number') return true;
    else return false;
 }
@@ -232,7 +247,7 @@ dale.stopOn (undefined,       true,  isNumber)    // returns undefined
 
 ```javascript
 
-function returnIfNotNumber (value) {
+var returnIfNotNumber = function (value) {
    if (typeof (value) === 'number') return true;
    else return value;
 }
@@ -273,22 +288,22 @@ dale is necessarily slower than a `for` loop, since it consists of a wrapper on 
 Iterating arrays:
 
 for:  1x
-dale: 1.5x
+dale: 2x
 
 Iterating objects:
 
 for:                                    1x
-dale:                                   3.25x
-dale, without the hasOwnProperty check: 2.25x
+dale:                                   2.5x
+dale, without the hasOwnProperty check: 2x
 ```
 
-This means that dale takes 50% more time when iterating arrays and between 125% and 225% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of the `for` loop.
+This means that dale takes 100% more time when iterating arrays and between 100% and 150% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of a raw `for` loop.
 
 I am pretty sure that the difference between the performance for arrays and objects has to do with the underlying implementation of javascript, since the code paths for arrays and objects in dale are almost identical.
 
 The benchmark is included in `example.js` - to execute it just run that file, or open it in a browser. The benchmark attempts to make many iterations without almost any computation, to focus on the raw speed of the underlying loop (be it a real loop or dale's layer on top of it).
 
-The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome, dale's performance with objects is somewhat better than in node (1.5x). In Firefox, dale's performance with objects is considerably slower (5x-7x). Interestingly enough, in both browsers dale's performance with arrays is also about 1.5x.
+The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome, dale's performance with objects is somewhat worse than in node (2-3x), and with arrays definitely worse (3x). In Firefox, dale's performance with objects is downright slow (10x), but not so with arrays (2-2.5x).
 
 ## Source code
 
@@ -298,7 +313,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.1.9
+dale - v2.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -435,6 +450,12 @@ If the value is neither an object or an array, we wrap it in an array so that we
          if (inputType !== 'array' && inputType !== 'object') input = [input];
 ```
 
+Here we detect whether `input` is an `arguments` object. If that's the case, we set `inputType` to `arguments`.
+
+```javascript
+         if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'arguments';
+```
+
 The loop to end all loops:
 
 ```javascript
@@ -452,10 +473,12 @@ Note that we use `Object.prototype.hasOwnProperty`, in case `input.hasOwnPropert
             if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 ```
 
-If `input` is an array, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
+If `input` is an array or an `arguments` object, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
+
+This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
 
 ```javascript
-            if (inputType === 'array') key = parseInt (key);
+            if (inputType === 'array' || inputType === 'arguments') key = parseInt (key);
 ```
 
 `input [key]` is the item currently being read by the loop (let's call it `value`). We apply the `value` and the `key` to the `fun`, and store the result in a variable.

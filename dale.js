@@ -1,5 +1,5 @@
 /*
-dale - v2.1.9
+dale - v2.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -52,12 +52,13 @@ Please refer to readme.md to read the annotated source.
          var inputType = type (input);
 
          if (inputType !== 'array' && inputType !== 'object') input = [input];
+         if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'arguments';
 
          for (var key in input) {
 
             if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 
-            if (inputType === 'array') key = parseInt (key);
+            if (inputType === 'array' || inputType === 'arguments') key = parseInt (key);
 
             var result = fun (input [key], key);
 

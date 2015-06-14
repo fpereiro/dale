@@ -1,5 +1,5 @@
 /*
-dale - v2.1.9
+dale - v2.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -12,6 +12,15 @@ Run the examples by either including the script in a webpage or by running `node
 
    var dale = isNode ? require ('./dale.js') : window.dale;
 
+   // *** TESTS ***
+
+   var check = function (a, b) {
+      if (JSON.stringify (a) !== JSON.stringify (b)) {
+         console.log ('A test just failed!');
+         process.exit (1);
+      }
+   }
+
    var input = ['a', 'b', 'c'];
 
    for (var i in input) {
@@ -23,14 +32,33 @@ Run the examples by either including the script in a webpage or by running `node
    //    Element #11 is b
    //    Element #21 is c
 
-   dale.do (input, function (v, k) {
+   var output = dale.do (input, function (v, k) {
       console.log ('Element #' + (k + 1) + ' is ' + v);
+      return k;
    });
+
+   check (output, [0, 1, 2]);
 
    // This function will print:
    //    Element #1 is a
    //    Element #2 is b
    //    Element #3 is c
+
+   var argumentsTest = function (A, B, C) {
+      return dale.do (arguments, function (v, k) {
+         console.log ('Element #' + (k + 1) + ' is ' + v);
+         return k;
+      });
+   }
+
+   // The function invocation below will print:
+   //    Element #1 is a
+   //    Element #2 is b
+   //    Element #3 is c
+
+   output = argumentsTest.apply (argumentsTest, input);
+
+   check (output, [0, 1, 2]);
 
    var input = [1, 2, 'clank', 4];
 
@@ -45,6 +73,8 @@ Run the examples by either including the script in a webpage or by running `node
 
    // output will be [10, 20]
 
+   check (output, [10, 20]);
+
    output = [];
 
    dale.stopOn (input, false, function (v, k) {
@@ -55,6 +85,8 @@ Run the examples by either including the script in a webpage or by running `node
    console.log (output);
 
    // output will be [10, 20]
+
+   check (output, [10, 20]);
 
    var data = {
       key: 'value',
@@ -67,34 +99,42 @@ Run the examples by either including the script in a webpage or by running `node
    console.log (data.key3);
 
    // data.key3 will be equal to [10, 20, 30, 40]
+   check (data.key3, [10, 20, 30, 40]);
 
-   console.log (dale.do ([1, 2, 3], function (v) {return v + 1}));
+   console.log (output = dale.do ([1, 2, 3], function (v) {return v + 1}));
    // returns [2, 3, 4]
+   check (output, [2, 3, 4]);
 
-   console.log (dale.do ({a: 1, b: 2, c: 3}, function (v) {return v + 1}));
+   console.log (output = dale.do ({a: 1, b: 2, c: 3}, function (v) {return v + 1}));
    // returns [2, 3, 4]
+   check (output, [2, 3, 4]);
 
-   console.log (dale.do (1, function (v) {return v + 1}));
+   console.log (output = dale.do (1, function (v) {return v + 1}));
    // returns [2]
+   check (output, [2]);
 
-   console.log (dale.do ({a: 1, b: 2, c: 3}, function (v, k) {return k + v}));
+   console.log (output = dale.do ({a: 1, b: 2, c: 3}, function (v, k) {return k + v}));
    // returns ['a1', 'b2', 'c3']
+   check (output, ['a1', 'b2', 'c3']);
 
-   console.log (dale.do ([], function (v, k) {return v + 1}));
+   console.log (output = dale.do ([], function (v, k) {return v + 1}));
    // returns []
+   check (output, []);
 
-   console.log (dale.do ({}, function (v, k) {return v + 1}));
+   console.log (output = dale.do ({}, function (v, k) {return v + 1}));
    // returns []
+   check (output, []);
 
-   console.log (dale.do (undefined, function (v, k) {return v + 1}));
+   console.log (output = dale.do (undefined, function (v, k) {return v + 1}));
    // returns []
+   check (output, []);
 
-   console.log (dale.fil ([{id: 1}, {id: 8}, {id: 14}], false, function (v) {
+   console.log (output = dale.fil ([{id: 1}, {id: 8}, {id: 14}], undefined, function (v) {
       if (v.id < 10) return v;
-      else return false;
    }));
 
    // returns [{id: 1}, {id: 8}]
+   check (output, [{id: 1}, {id: 8}]);
 
    var members = [
       {name: 'Pepe', active: true},
@@ -102,45 +142,64 @@ Run the examples by either including the script in a webpage or by running `node
       {name: 'Helmut', active: true}
    ];
 
-   console.log (dale.fil (members, false, function (v) {
-      if (v.active === false) return false;
-      else return {name: v.name};
+   console.log (output = dale.fil (members, undefined, function (v) {
+      if (v.active) return {name: v.name};
    }));
 
    // returns [{name: 'Pepe'}, {name: 'Helmut'}]
+   check (output, [{name: 'Pepe'}, {name: 'Helmut'}]);
 
-   console.log (dale.keys ({'foo': true, 'bar': false, 'hip': undefined}));
+   console.log (output = dale.keys ({'foo': true, 'bar': false, 'hip': undefined}));
+
    // returns ['foo', 'bar', 'hip']
+   check (output, ['foo', 'bar', 'hip']);
 
-   function isNumber (value) {
+   var isNumber = function (value) {
       if (typeof (value) === 'number') return true;
       else return false;
    }
 
-   console.log (dale.stopOn ([2, 3, 4],       false, isNumber));    // returns true
-   console.log (dale.stopOn ([2, 'trois', 4], false, isNumber));    // returns false
-   console.log (dale.stopOn ([],              true,  isNumber));    // returns undefined
-   console.log (dale.stopOn (undefined,       true,  isNumber));    // returns undefined
+   console.log (output = dale.stopOn ([2, 3, 4],       false, isNumber));    // returns true
+   check (output, true);
+   console.log (output = dale.stopOn ([2, 'trois', 4], false, isNumber));    // returns false
+   check (output, false);
+   console.log (output = dale.stopOn ([],              true,  isNumber));    // returns undefined
+   check (output, undefined);
+   console.log (output = dale.stopOn (undefined,       true,  isNumber));    // returns undefined
+   check (output, undefined);
 
-   function returnIfNotNumber (value) {
+   var returnIfNotNumber = function (value) {
       if (typeof (value) === 'number') return true;
       else return value;
    }
 
-   console.log (dale.stopOnNot ([2, 3, 4],       true, returnIfNotNumber));    // returns true
-   console.log (dale.stopOnNot ([2, 'trois', 4], true, returnIfNotNumber));    // returns 'trois'
-   console.log (dale.stopOnNot ([],              true, returnIfNotNumber));    // returns undefined
+   console.log (output = dale.stopOnNot ([2, 3, 4],       true, returnIfNotNumber));    // returns true
+   check (output, true);
+   console.log (output = dale.stopOnNot ([2, 'trois', 4], true, returnIfNotNumber));    // returns 'trois'
+   check (output, 'trois');
+   console.log (output = dale.stopOnNot ([],              true, returnIfNotNumber));    // returns undefined
+   check (output, undefined);
 
    var o1 = {foo: 42}
    var o2 = Object.create (o1); // o2 inherits from o1
 
-   console.log (dale.keys (o1));       // returns ['foo']
-   console.log (dale.keys (o2));       // returns []
-   console.log (dale.keys (o2, true)); // returns ['foo']
+   console.log (output = dale.keys (o1));       // returns ['foo']
+   check (output, ['foo']);
+   console.log (output = dale.keys (o2));       // returns []
+   check (output, []);
+   console.log (output = dale.keys (o2, true)); // returns ['foo']
+   check (output, ['foo']);
 
-   console.log (dale.do (o1, function (v) {return v}));       // returns [42]
-   console.log (dale.do (o2, function (v) {return v}));       // returns []
-   console.log (dale.do (o2, function (v) {return v}, true)); // returns [42]
+   console.log (output = dale.do (o1, function (v) {return v}));       // returns [42]
+   check (output, [42]);
+   console.log (output = dale.do (o2, function (v) {return v}));       // returns []
+   check (output, []);
+   console.log (output = dale.do (o2, function (v) {return v}, true)); // returns [42]
+   check (output, [42]);
+
+   console.log ('\nAll tests passed successfully!\n');
+
+   // *** PERFORMANCE ***
 
    // Generated with http://www.generatedata.com/
    var users = {
@@ -202,33 +261,36 @@ Run the examples by either including the script in a webpage or by running `node
       return daleObject (true);
    }
 
-   function benchmark (fun, times) {
+   var benchmark = function (fun, times) {
       var oTimes = times;
-      var time = function () {return new Date ().getTime ()}
-      var start = time ();
+      var start = Date.now ();
       // I briefly doubted whether to do a for loop or a dale invocation here, until I weaseled out with a while loop.
       while (times) {
          fun ();
          times--;
       }
-      console.log ((fun + '').match (/^function [A-Za-z0-9_]+/) [0], '\t', 'executed', oTimes, 'times in', '\t', time () - start, 'milliseconds');
+      console.log ((fun + '').match (/^function [A-Za-z0-9_]+/) [0], '\t', 'executed', oTimes, 'times in', '\t', Date.now () - start, 'milliseconds');
    }
 
-   function multiBenchmark (times, iterations) {
-      console.log (JSON.stringify (forArray ()) === JSON.stringify (daleArray ()));
-      console.log (JSON.stringify (forObject ()) === JSON.stringify (daleObject ()) && JSON.stringify (daleObject ()) === JSON.stringify (daleObjectOwn ()));
-      while (iterations) {
-         benchmark (forArray, times);
-         benchmark (daleArray, times);
+   var multiBenchmark = function (times, iterations) {
+      // We check that the test functions return the same output.
+      check (forArray (), daleArray ());
+      check (forObject (), daleObject ());
+      check (forObject (), daleObjectOwn ());
+
+      while (times) {
+         benchmark (forArray, iterations);
+         benchmark (daleArray, iterations);
          console.log ('----------------------------');
-         benchmark (forObject, times);
-         benchmark (daleObject, times);
-         benchmark (daleObjectOwn, times);
+         benchmark (forObject, iterations);
+         benchmark (daleObject, iterations);
+         benchmark (daleObjectOwn, iterations);
          console.log ('----------------------------');
-         iterations--;
+         times--;
       }
    }
 
-   multiBenchmark (2000, 5);
+   // Run the benchmark 5 times, with 2000 iterations per test function.
+   multiBenchmark (5, 2000);
 
 }) ();
