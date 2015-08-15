@@ -1,5 +1,5 @@
 /*
-dale - v2.2.0
+dale - v2.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -180,6 +180,32 @@ Run the examples by either including the script in a webpage or by running `node
    console.log (output = dale.stopOnNot ([],              true, returnIfNotNumber));    // returns undefined
    check (output, undefined);
 
+
+   var members2 = [
+      {name: 'Pepe', age: 68, active: true},
+      {name: 'Dimitri', age: 34, active: false},
+      {name: 'Helmut', age: 42, active: true}
+   ];
+
+   console.log (output = dale.obj (members2, function (v) {
+      if (! v.active) return;
+      return [v.name, v.age];
+   }));
+
+   check (output, {Pepe: 68, Helmut: 42});
+
+   console.log (output = dale.obj (members2, function (v) {
+      return /thisisinvalid/
+   }));
+
+   check (output, undefined);
+
+   console.log (output = dale.obj ([], function (v) {
+      return [v, v];
+   }));
+
+   check (output, {});
+
    var o1 = {foo: 42}
    var o2 = Object.create (o1); // o2 inherits from o1
 
@@ -270,6 +296,7 @@ Run the examples by either including the script in a webpage or by running `node
          times--;
       }
       console.log ((fun + '').match (/^function [A-Za-z0-9_]+/) [0], '\t', 'executed', oTimes, 'times in', '\t', Date.now () - start, 'milliseconds');
+      return Date.now () - start;
    }
 
    var multiBenchmark = function (times, iterations) {
@@ -278,16 +305,20 @@ Run the examples by either including the script in a webpage or by running `node
       check (forObject (), daleObject ());
       check (forObject (), daleObjectOwn ());
 
+      var result = {aFor: 0, aDale: 0, oFor: 0, oDale: 0, oDaleObj: 0};
+
       while (times) {
-         benchmark (forArray, iterations);
-         benchmark (daleArray, iterations);
+         result.aFor     += benchmark (forArray, iterations);
+         result.aDale    += benchmark (daleArray, iterations);
          console.log ('----------------------------');
-         benchmark (forObject, iterations);
-         benchmark (daleObject, iterations);
-         benchmark (daleObjectOwn, iterations);
+         result.oFor     += benchmark (forObject, iterations);
+         result.oDale    += benchmark (daleObject, iterations);
+         result.oDaleObj += benchmark (daleObjectOwn, iterations);
          console.log ('----------------------------');
          times--;
       }
+      console.log ('\nforArray: 1x,\ndaleArray: ' + (result.aDale / result.aFor) + 'x\n');
+      console.log ('forObject: 1x,\ndaleObject: ' + (result.oDale / result.oFor) + 'x\ndaleObjectOwn: ' + (result.oDaleObj / result.oFor) + 'x\n');
    }
 
    // Run the benchmark 5 times, with 2000 iterations per test function.

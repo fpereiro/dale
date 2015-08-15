@@ -127,7 +127,7 @@ And you also can use it in node.js. To install: `npm install dale`
 
 ## Functions
 
-dale consists of just five functions.
+dale consists of six functions.
 
 ### `dale.do`
 
@@ -258,6 +258,39 @@ dale.stopOnNot ([],              true, returnIfNotNumber)    // returns undefine
 
 ```
 
+### `dale.obj`
+
+`dale.obj` is like `dale.do`, but it returns an object instead. This function:
+   - Always returns an object (let's name it `output`).
+   - Takes an `input` and a `function`.
+   - For each `element` in the `input`, it executes the `function`, passing the `element` and the `key` of the element. This function application generates a `result`.
+   - If `result` is an array with two elements (`result [0]` and `result [1]`, the key `result [0]` will be set to `result [1]`).
+   - If `result` is `undefined`, `output` will remain unchanged.
+   - If `result` is neither an array nor `undefined`, an error will be printed and `dale.obj` will return `undefined`.
+
+```javascript
+
+var members = [
+   {name: 'Pepe', age: 68, active: true},
+   {name: 'Dimitri', age: 34, active: false},
+   {name: 'Helmut', age: 42, active: true}
+];
+
+dale.obj (members, function (v) {
+   if (! v.active) return;
+   return [v.name, v.age];
+});
+// returns {Pepe: 68, Helmut: 42}
+
+dale.obj ([], function (v) {
+   return [v, v];
+});
+// returns {}
+
+```
+
+Notice that `dale.obj` always returns an object with zero or more elements, unless one of the invocations to `fun` returns an invalid value.
+
 ## Inherited properties
 
 By default, dale functions iterate an object, it will only iterate the keys that belong to the object directly, ignoring inherited keys.
@@ -313,7 +346,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.2.0
+dale - v2.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -389,23 +422,23 @@ Below is the function.
 
 ### The main function
 
-All five functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
+All six functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
 
-`make` function receives a `what` argument (can be any of `'do'`, `'fil'`, `'stopOn'`, `'stopOnNot'`). It will then return the corresponding dale function.
+`make` function receives a `what` argument (can be any of `'do'`, `'obj'`, `'fil'`, `'stopOn'`, `'stopOnNot'`). It will then return the corresponding dale function.
 
-`dale.keys` is implemented below as a special form of `dale.do`, so the function below is actually concerned with the other four functions.
+`dale.keys` is implemented below as a special form of `dale.do`, so the function below is actually concerned with the other five functions.
 
 ```javascript
    var make = function (what) {
       return function (input) {
 ```
 
-All dale functions receive a `fun` as their last argument. In the case of `dale.do`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stopOn` and `dale.stopOnNot`, we specify the `filterValue`/`stopOnValue`/`stopOnNotValue` as the second argument (we'll name it `filterValue` in the code), hence the `fun` is the third argument.
+All dale functions receive a `fun` as their last argument. In the case of `dale.do` and `dale.obj`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stopOn` and `dale.stopOnNot`, we specify the `filterValue`/`stopOnValue`/`stopOnNotValue` as the second argument (we'll name it `filterValue` in the code), hence the `fun` is the third argument.
 
 
 ```javascript
-         var fun         = what === 'do' ? arguments [1] : arguments [2];
-         var filterValue = what === 'do' ? undefined     : arguments [1];
+         var fun         = (what === 'do' || what === 'obj') ? arguments [1] : arguments [2];
+         var filterValue = (what === 'do' || what === 'obj') ? undefined     : arguments [1];
 ```
 
 We set the `inherit` flag, which if enabled will iterate through the inherited properties of an object.
@@ -421,15 +454,15 @@ If `fun` is not a function, we log an error and return `false`.
 
 ```javascript
          if (type (fun) !== 'function') {
-            console.log ((what === 'do' ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            console.log (((what === 'do' || what === 'obj') ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
             return false;
          }
 ```
 
-We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.stopOn` and `dale.stopOnNot`, we always return a single element - hence the default output will be `undefined`.
+We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.obj`, we create an empty object. For `dale.stopOn` and `dale.stopOnNot`, we always return a single element - hence the default output will be `undefined`.
 
 ```javascript
-         var output = (what === 'do' || what === 'fil') ? [] : undefined;
+         var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? {} : undefined);
 ```
 
 For any dale function, if the `input` is `undefined`, we return the default `output`. Notice that in this case, the function returns without executing the `fun` even once.
@@ -503,7 +536,21 @@ For the case of `dale.fil`, if `result` is different from `filterValue`, we push
             }
 ```
 
-If we are inside the conditional below, we are dealing with `stopOn` or `stopOnNot`.
+For the case of `dale.obj`, if `result` is neither an array nor `undefined`, we print an error and return `undefined`.
+
+```javascript
+            else if (what === 'obj') {
+               if (result !== undefined && type (result) !== 'array') return console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
+```
+
+Otherwise, if result is not `undefined` (hence an array), we set the key `result [0]` of `output` to `result [1]`.
+
+```javascript
+               if (result !== undefined)   output [result [0]] = result [1];
+            }
+```
+
+If we are inside the conditional block below, we are dealing with `stopOn` or `stopOnNot`.
 
 ```javascript
             else {
@@ -529,13 +576,14 @@ We close the loop and return `output`.
    }
 ```
 
-### The five functions
+### The six functions
 
 We create each of the dale functions. `dale.keys` is simply a lambda function that passes `input` and `inherit` to `dale.do`, using a `fun` that only returns its `key`.
 
 ```javascript
    dale.do        = make ('do');
    dale.fil       = make ('fil');
+   dale.obj       = make ('obj');
    dale.stopOn    = make ('stopOn');
    dale.stopOnNot = make ('stopOnNot');
    dale.keys      = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
