@@ -1,5 +1,5 @@
 /*
-dale - v2.3.0
+dale - v2.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -194,11 +194,28 @@ Run the examples by either including the script in a webpage or by running `node
 
    check (output, {Pepe: 68, Helmut: 42});
 
+   var base = {
+      Fritz: 46,
+      Sigfrid: 24
+   }
+
+   console.log (output = dale.obj (members2, base, function (v) {
+      if (! v.active) return;
+      return [v.name, v.age];
+   }));
+
+   check (output, {Fritz: 46, Sigfrid: 24, Pepe: 68, Helmut: 42});
+
+   check (base, {Fritz: 46, Sigfrid: 24, Pepe: 68, Helmut: 42});
+
    console.log (output = dale.obj (members2, function (v) {
       return /thisisinvalid/
    }));
 
    check (output, undefined);
+
+   dale.obj ([], /invalidfun/);
+   dale.obj ([], {}, /invalidfun/);
 
    console.log (output = dale.obj ([], function (v) {
       return [v, v];

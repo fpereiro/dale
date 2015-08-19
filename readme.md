@@ -262,9 +262,9 @@ dale.stopOnNot ([],              true, returnIfNotNumber)    // returns undefine
 
 `dale.obj` is like `dale.do`, but it returns an object instead. This function:
    - Always returns an object (let's name it `output`).
-   - Takes an `input` and a `function`.
+   - Takes an `input`, an optional `base object`, and a `function`. If a `base object` is passed that is not an object, an error will be printed.
    - For each `element` in the `input`, it executes the `function`, passing the `element` and the `key` of the element. This function application generates a `result`.
-   - If `result` is an array with two elements (`result [0]` and `result [1]`, the key `result [0]` will be set to `result [1]`).
+   - If `result` is an array with two elements (`result [0]` and `result [1]`), the key `result [0]` will be set to `result [1]` in either the `base object` or a new object (if no `base object` is provided).
    - If `result` is `undefined`, `output` will remain unchanged.
    - If `result` is neither an array nor `undefined`, an error will be printed and `dale.obj` will return `undefined`.
 
@@ -282,14 +282,38 @@ dale.obj (members, function (v) {
 });
 // returns {Pepe: 68, Helmut: 42}
 
+var base = {
+   Fritz: 46,
+   Sigfrid: 24
+}
+
+dale.obj (members, base, function (v) {
+   if (! v.active) return;
+   return [v.name, v.age];
+});
+// returns {Fritz: 46, Sigfrid: 24, Pepe: 68, Helmut: 42}
+
 dale.obj ([], function (v) {
    return [v, v];
 });
 // returns {}
 
+dale.obj (members, function (v) {
+   return /thisisinvalid/
+}));
+// returns undefined and prints the following error: `Value returned by fun must be an array but instead is of type regex`
 ```
 
 Notice that `dale.obj` always returns an object with zero or more elements, unless one of the invocations to `fun` returns an invalid value.
+
+One important point: if you pass a `base object`, the original object will be modified. This means that if you want to preserve the original object, you must either copy it first or avoid using `dale.obj`.
+
+```javascript
+
+console.log (base);
+// `base` will be equal to {Fritz: 46, Sigfrid: 24, Pepe: 68, Helmut: 42}
+
+```
 
 ## Inherited properties
 
@@ -326,17 +350,17 @@ dale: 2x
 Iterating objects:
 
 for:                                    1x
-dale:                                   2.5x
-dale, without the hasOwnProperty check: 2x
+dale:                                   3x
+dale, without the hasOwnProperty check: 4x
 ```
 
-This means that dale takes 100% more time when iterating arrays and between 100% and 150% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of a raw `for` loop.
+This means that dale takes 100% more time when iterating arrays and between 200% and 300% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of a raw `for` loop.
 
 I am pretty sure that the difference between the performance for arrays and objects has to do with the underlying implementation of javascript, since the code paths for arrays and objects in dale are almost identical.
 
 The benchmark is included in `example.js` - to execute it just run that file, or open it in a browser. The benchmark attempts to make many iterations without almost any computation, to focus on the raw speed of the underlying loop (be it a real loop or dale's layer on top of it).
 
-The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome, dale's performance with objects is somewhat worse than in node (2-3x), and with arrays definitely worse (3x). In Firefox, dale's performance with objects is downright slow (10x), but not so with arrays (2-2.5x).
+The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome, dale's performance with objects is somewhat better than that of node (2-3x), and with arrays definitely worse (3x). In Firefox, dale's performance with objects is downright slow (10x), but not so with arrays (2-2.5x).
 
 ## Source code
 
@@ -346,7 +370,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.3.0
+dale - v2.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -433,12 +457,13 @@ All six functions of dale have many common elements. As a result, I've factored 
       return function (input) {
 ```
 
-All dale functions receive a `fun` as their last argument. In the case of `dale.do` and `dale.obj`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stopOn` and `dale.stopOnNot`, we specify the `filterValue`/`stopOnValue`/`stopOnNotValue` as the second argument (we'll name it `filterValue` in the code), hence the `fun` is the third argument.
+All dale functions receive a `fun` as their last argument. In the case of `dale.do` and `dale.obj`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stopOn`, `dale.stopOnNot` and possibly `dale.obj`, we recognize another argument which we'll name `middleArg` (because it lays between `input` and `fun`).
 
+For `dale.do`, `middleArg` will always be `undefined`, and for all other values, `middleArg` will be always defined. The variable case is that of `dale.obj`, in which we'll consider `middleArg` to be defined only if it's of type `object`. If the latter is not the case, we will initialize `middleArg` to a new empty object.
 
 ```javascript
-         var fun         = (what === 'do' || what === 'obj') ? arguments [1] : arguments [2];
-         var filterValue = (what === 'do' || what === 'obj') ? undefined     : arguments [1];
+         var middleArg = what === 'do' ? undefined     : (what !== 'obj' ? arguments [1] : (type (arguments [1]) === 'object' ? arguments [1] : {}));
+         var fun       = what === 'do' ? arguments [1] : (what !== 'obj' ? arguments [2] : (type (arguments [1]) === 'object' ? arguments [2] : arguments [1]));
 ```
 
 We set the `inherit` flag, which if enabled will iterate through the inherited properties of an object.
@@ -446,23 +471,23 @@ We set the `inherit` flag, which if enabled will iterate through the inherited p
 If the last argument passed to the function is `true`, we set it to `true`, otherwise we set it to `false`. Note that every dale function (with the exception of `dale.keys`, which is defined as a special case outside of `make`) receives `fun` as its last required argument. This means that a boolean flag cannot be possibly confused with `fun`.
 
 ```javascript
-         var inherit     = arguments [arguments.length - 1] === true ? true : false;
+         var inherit   = arguments [arguments.length - 1] === true ? true : false;
 ```
-We check the type of the arguments. Since `input` and `filterValue` can be anything, we just need to check that `fun` is indeed a function.
+We check the type of the arguments. Since `input` and `middleArg` can be anything (except for the case of `dale.obj`, for which we have already checked the type of `middleArg`), we just need to check that `fun` is indeed a function.
 
 If `fun` is not a function, we log an error and return `false`.
 
 ```javascript
          if (type (fun) !== 'function') {
-            console.log (((what === 'do' || what === 'obj') ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            console.log (((what === 'do' || (what === 'obj' && type (arguments [1]) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
             return false;
          }
 ```
 
-We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.obj`, we create an empty object. For `dale.stopOn` and `dale.stopOnNot`, we always return a single element - hence the default output will be `undefined`.
+We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.obj`, we use `middleArg` (which is either a `base object` or an object we created anew). For `dale.stopOn` and `dale.stopOnNot`, we always return a single element - hence the default output will be `undefined`.
 
 ```javascript
-         var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? {} : undefined);
+         var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? middleArg : undefined);
 ```
 
 For any dale function, if the `input` is `undefined`, we return the default `output`. Notice that in this case, the function returns without executing the `fun` even once.
@@ -528,11 +553,11 @@ For the case of `dale.do`, we just push `result` into `output`.
             if      (what === 'do')        output.push (result);
 ```
 
-For the case of `dale.fil`, if `result` is different from `filterValue`, we push it into `output`.
+For the case of `dale.fil`, if `result` is different from `middleArg`, we push it into `output`.
 
 ```javascript
             else if (what === 'fil') {
-               if (result !== filterValue) output.push (result);
+               if (result !== middleArg) output.push (result);
             }
 ```
 
@@ -556,13 +581,13 @@ If we are inside the conditional block below, we are dealing with `stopOn` or `s
             else {
 ```
 
-For the case of `stopOn`, if the `result` is equal to the `filterValue`, we return `result` to break the loop. For the case of `stopOn`, if the `result` is **not** equal to the `filterValue`, we return `result` and also break the loop.
+For the case of `stopOn`, if the `result` is equal to `middleArg`, we return `result` to break the loop. For the case of `stopOn`, if the `result` is **not** equal to `middleArg`, we return `result` and also break the loop.
 
 If the loop wasn't broken, we set `output` to `result`.
 
 ```javascript
-               if      (what === 'stopOn'    && result === filterValue) return result;
-               else if (what === 'stopOnNot' && result !== filterValue) return result;
+               if      (what === 'stopOn'    && result === middleArg) return result;
+               else if (what === 'stopOnNot' && result !== middleArg) return result;
                else    output = result;
             }
 ```

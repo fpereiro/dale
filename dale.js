@@ -1,5 +1,5 @@
 /*
-dale - v2.3.0
+dale - v2.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -36,16 +36,16 @@ Please refer to readme.md to read the annotated source.
    var make = function (what) {
       return function (input) {
 
-         var fun         = (what === 'do' || what === 'obj') ? arguments [1] : arguments [2];
-         var filterValue = (what === 'do' || what === 'obj') ? undefined     : arguments [1];
-         var inherit     = arguments [arguments.length - 1] === true ? true : false;
+         var middleArg = what === 'do' ? undefined     : (what !== 'obj' ? arguments [1] : (type (arguments [1]) === 'object' ? arguments [1] : {}));
+         var fun       = what === 'do' ? arguments [1] : (what !== 'obj' ? arguments [2] : (type (arguments [1]) === 'object' ? arguments [2] : arguments [1]));
+         var inherit   = arguments [arguments.length - 1] === true ? true : false;
 
          if (type (fun) !== 'function') {
-            console.log (((what === 'do' || what === 'obj') ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            console.log (((what === 'do' || (what === 'obj' && type (arguments [1]) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
             return false;
          }
 
-         var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? {} : undefined);
+         var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? middleArg : undefined);
 
          if (input === undefined) return output;
 
@@ -65,7 +65,7 @@ Please refer to readme.md to read the annotated source.
             if      (what === 'do')        output.push (result);
 
             else if (what === 'fil') {
-               if (result !== filterValue) output.push (result);
+               if (result !== middleArg) output.push (result);
             }
 
             else if (what === 'obj') {
@@ -73,8 +73,8 @@ Please refer to readme.md to read the annotated source.
                if (result !== undefined)   output [result [0]] = result [1];
             }
             else {
-               if      (what === 'stopOn'    && result === filterValue) return result;
-               else if (what === 'stopOnNot' && result !== filterValue) return result;
+               if      (what === 'stopOn'    && result === middleArg) return result;
+               else if (what === 'stopOnNot' && result !== middleArg) return result;
                else    output = result;
             }
          }
