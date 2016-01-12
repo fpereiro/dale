@@ -123,6 +123,12 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 <script src="dale.js"></script>
 ```
 
+Or you can use this link to the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
+
+```html
+<script src="dale.js"></script>
+```
+
 And you also can use it in node.js. To install: `npm install dale`
 
 ## Functions
@@ -370,7 +376,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v3.0.0
+dale - v3.0.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
