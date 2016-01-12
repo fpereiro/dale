@@ -71,7 +71,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
    argumentsTest ('a', 'b', 'c');
    ```
 
-3. Provides functions (`stopOn` and `stopOnNot`) that allow you to exit the loop prematurely if a certain value is returned by an iteration. This allows for code that's more clear as well as more efficient.
+3. Provides functions (`stop` and `stopNot`) that allow you to exit the loop prematurely if a certain value is returned by an iteration. This allows for code that's more clear as well as more efficient.
 
    ```javascript
 
@@ -88,7 +88,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    output = [];
 
-   dale.stopOn (input, false, function (v, k) {
+   dale.stop (input, false, function (v, k) {
       if (typeof (v) !== 'number') return false;
       else output.push (v * 10);
    });
@@ -213,17 +213,17 @@ dale.keys ({'foo': true, 'bar': false, 'hip': undefined})
 
 Notice that `dale.keys` always returns an array with zero or more elements (each of them the `keys` of the elements within the `input`).
 
-### `dale.stopOn`
+### `dale.stop`
 
-`dale.stopOn`, for stopping the iteration when finding a certain value:
-   - Takes an `input`, a `stopOn value` and a `function`.
+`dale.stop`, for stopping the iteration when finding a certain value:
+   - Takes an `input`, a `stop value` and a `function`.
    - Just like `dale.do`, it iterates over the `input`. Two things can happen:
-      - If the result of this application **is equal** to the `stopOn value`, the result is returned and no further iteration is performed.
-      - If the result of this application **is not equal** to the `stopOn value`, the iteration continues.
-   - If the `input` is iterated completely without finding the `stopOn value`, the result of the last application is returned.
-   - If the `input` has zero elements (because it is an empty object, empty array, or `undefined`, `dale.stopOn` returns `undefined`.
+      - If the result of this application **is equal** to the `stop value`, the result is returned and no further iteration is performed.
+      - If the result of this application **is not equal** to the `stop value`, the iteration continues.
+   - If the `input` is iterated completely without finding the `stop value`, the result of the last application is returned.
+   - If the `input` has zero elements (because it is an empty object, empty array, or `undefined`, `dale.stop` returns `undefined`.
 
-This function, just like `dale.stopOnNot` below, has two qualities that distinguish it from the other functions:
+This function, just like `dale.stopNot` below, has two qualities that distinguish it from the other functions:
 - It can stop the iteration before reaching the end of the `input`.
 - It returns a single result, instead of an array of results.
 
@@ -234,16 +234,16 @@ var isNumber = function (value) {
    else return false;
 }
 
-dale.stopOn ([2, 3, 4],       false, isNumber)    // returns true
-dale.stopOn ([2, 'trois', 4], false, isNumber)    // returns false
-dale.stopOn ([],              true,  isNumber)    // returns undefined
-dale.stopOn (undefined,       true,  isNumber)    // returns undefined
+dale.stop ([2, 3, 4],       false, isNumber)    // returns true
+dale.stop ([2, 'trois', 4], false, isNumber)    // returns false
+dale.stop ([],              true,  isNumber)    // returns undefined
+dale.stop (undefined,       true,  isNumber)    // returns undefined
 
 ```
 
-### `dale.stopOnNot`
+### `dale.stopNot`
 
-`dale.stopOnNot` is the complementary function to `dale.stopOn`. The only difference is that it stops when it finds a value that is **not** equal to the comparison value (which we name `stopOnNot value`).
+`dale.stopNot` is the complementary function to `dale.stop`. The only difference is that it stops when it finds a value that is **not** equal to the comparison value (which we name `stopNot value`).
 
 ```javascript
 
@@ -252,9 +252,9 @@ var returnIfNotNumber = function (value) {
    else return value;
 }
 
-dale.stopOnNot ([2, 3, 4],       true, returnIfNotNumber)    // returns true
-dale.stopOnNot ([2, 'trois', 4], true, returnIfNotNumber)    // returns 'trois'
-dale.stopOnNot ([],              true, returnIfNotNumber)    // returns undefined
+dale.stopNot ([2, 3, 4],       true, returnIfNotNumber)    // returns true
+dale.stopNot ([2, 'trois', 4], true, returnIfNotNumber)    // returns 'trois'
+dale.stopNot ([],              true, returnIfNotNumber)    // returns undefined
 
 ```
 
@@ -370,7 +370,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v2.4.0
+dale - v3.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -448,7 +448,7 @@ Below is the function.
 
 All six functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
 
-`make` function receives a `what` argument (can be any of `'do'`, `'obj'`, `'fil'`, `'stopOn'`, `'stopOnNot'`). It will then return the corresponding dale function.
+`make` function receives a `what` argument (can be any of `'do'`, `'obj'`, `'fil'`, `'stop'`, `'stopNot'`). It will then return the corresponding dale function.
 
 `dale.keys` is implemented below as a special form of `dale.do`, so the function below is actually concerned with the other five functions.
 
@@ -457,7 +457,7 @@ All six functions of dale have many common elements. As a result, I've factored 
       return function (input) {
 ```
 
-All dale functions receive a `fun` as their last argument. In the case of `dale.do` and `dale.obj`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stopOn`, `dale.stopOnNot` and possibly `dale.obj`, we recognize another argument which we'll name `middleArg` (because it lays between `input` and `fun`).
+All dale functions receive a `fun` as their last argument. In the case of `dale.do` and `dale.obj`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stop`, `dale.stopNot` and possibly `dale.obj`, we recognize another argument which we'll name `middleArg` (because it lays between `input` and `fun`).
 
 For `dale.do`, `middleArg` will always be `undefined`, and for all other values, `middleArg` will be always defined. The variable case is that of `dale.obj`, in which we'll consider `middleArg` to be defined only if it's of type `object`. If the latter is not the case, we will initialize `middleArg` to a new empty object.
 
@@ -484,7 +484,7 @@ If `fun` is not a function, we log an error and return `false`.
          }
 ```
 
-We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.obj`, we use `middleArg` (which is either a `base object` or an object we created anew). For `dale.stopOn` and `dale.stopOnNot`, we always return a single element - hence the default output will be `undefined`.
+We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.obj`, we use `middleArg` (which is either a `base object` or an object we created anew). For `dale.stop` and `dale.stopNot`, we always return a single element - hence the default output will be `undefined`.
 
 ```javascript
          var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? middleArg : undefined);
@@ -575,19 +575,19 @@ Otherwise, if result is not `undefined` (hence an array), we set the key `result
             }
 ```
 
-If we are inside the conditional block below, we are dealing with `stopOn` or `stopOnNot`.
+If we are inside the conditional block below, we are dealing with `stop` or `stopNot`.
 
 ```javascript
             else {
 ```
 
-For the case of `stopOn`, if the `result` is equal to `middleArg`, we return `result` to break the loop. For the case of `stopOn`, if the `result` is **not** equal to `middleArg`, we return `result` and also break the loop.
+For the case of `stop`, if the `result` is equal to `middleArg`, we return `result` to break the loop. For the case of `stop`, if the `result` is **not** equal to `middleArg`, we return `result` and also break the loop.
 
 If the loop wasn't broken, we set `output` to `result`.
 
 ```javascript
-               if      (what === 'stopOn'    && result === middleArg) return result;
-               else if (what === 'stopOnNot' && result !== middleArg) return result;
+               if      (what === 'stop'    && result === middleArg) return result;
+               else if (what === 'stopNot' && result !== middleArg) return result;
                else    output = result;
             }
 ```
@@ -606,11 +606,11 @@ We close the loop and return `output`.
 We create each of the dale functions. `dale.keys` is simply a lambda function that passes `input` and `inherit` to `dale.do`, using a `fun` that only returns its `key`.
 
 ```javascript
-   dale.do        = make ('do');
-   dale.fil       = make ('fil');
-   dale.obj       = make ('obj');
-   dale.stopOn    = make ('stopOn');
-   dale.stopOnNot = make ('stopOnNot');
+   dale.do      = make ('do');
+   dale.fil     = make ('fil');
+   dale.obj     = make ('obj');
+   dale.stop    = make ('stop');
+   dale.stopNot = make ('stopNot');
    dale.keys      = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
 ```
 

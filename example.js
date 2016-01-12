@@ -1,5 +1,5 @@
 /*
-dale - v2.4.0
+dale - v3.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -77,7 +77,7 @@ Run the examples by either including the script in a webpage or by running `node
 
    output = [];
 
-   dale.stopOn (input, false, function (v, k) {
+   dale.stop (input, false, function (v, k) {
       if (typeof (v) !== 'number') return false;
       else output.push (v * 10);
    });
@@ -159,13 +159,13 @@ Run the examples by either including the script in a webpage or by running `node
       else return false;
    }
 
-   console.log (output = dale.stopOn ([2, 3, 4],       false, isNumber));    // returns true
+   console.log (output = dale.stop ([2, 3, 4],       false, isNumber));    // returns true
    check (output, true);
-   console.log (output = dale.stopOn ([2, 'trois', 4], false, isNumber));    // returns false
+   console.log (output = dale.stop ([2, 'trois', 4], false, isNumber));    // returns false
    check (output, false);
-   console.log (output = dale.stopOn ([],              true,  isNumber));    // returns undefined
+   console.log (output = dale.stop ([],              true,  isNumber));    // returns undefined
    check (output, undefined);
-   console.log (output = dale.stopOn (undefined,       true,  isNumber));    // returns undefined
+   console.log (output = dale.stop (undefined,       true,  isNumber));    // returns undefined
    check (output, undefined);
 
    var returnIfNotNumber = function (value) {
@@ -173,11 +173,11 @@ Run the examples by either including the script in a webpage or by running `node
       else return value;
    }
 
-   console.log (output = dale.stopOnNot ([2, 3, 4],       true, returnIfNotNumber));    // returns true
+   console.log (output = dale.stopNot ([2, 3, 4],       true, returnIfNotNumber));    // returns true
    check (output, true);
-   console.log (output = dale.stopOnNot ([2, 'trois', 4], true, returnIfNotNumber));    // returns 'trois'
+   console.log (output = dale.stopNot ([2, 'trois', 4], true, returnIfNotNumber));    // returns 'trois'
    check (output, 'trois');
-   console.log (output = dale.stopOnNot ([],              true, returnIfNotNumber));    // returns undefined
+   console.log (output = dale.stopNot ([],              true, returnIfNotNumber));    // returns undefined
    check (output, undefined);
 
 

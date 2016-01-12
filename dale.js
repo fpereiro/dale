@@ -1,5 +1,5 @@
 /*
-dale - v2.4.0
+dale - v3.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -73,8 +73,8 @@ Please refer to readme.md to read the annotated source.
                if (result !== undefined)   output [result [0]] = result [1];
             }
             else {
-               if      (what === 'stopOn'    && result === middleArg) return result;
-               else if (what === 'stopOnNot' && result !== middleArg) return result;
+               if      (what === 'stop'    && result === middleArg) return result;
+               else if (what === 'stopNot' && result !== middleArg) return result;
                else    output = result;
             }
          }
@@ -84,11 +84,11 @@ Please refer to readme.md to read the annotated source.
 
    // *** THE SIX FUNCTIONS ***
 
-   dale.do        = make ('do');
-   dale.fil       = make ('fil');
-   dale.obj       = make ('obj');
-   dale.stopOn    = make ('stopOn');
-   dale.stopOnNot = make ('stopOnNot');
-   dale.keys      = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
+   dale.do      = make ('do');
+   dale.fil     = make ('fil');
+   dale.obj     = make ('obj');
+   dale.stop    = make ('stop');
+   dale.stopNot = make ('stopNot');
+   dale.keys    = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
 
 }) ();
