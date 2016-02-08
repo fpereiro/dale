@@ -323,22 +323,19 @@ console.log (base);
 
 ### `dale.times`
 
-`dale.times` is a wrapper around all the other functions. It is basically a shorthand of creating an array with consecutive integers `[1, 2, ..., n - 1, n]` to any of the other functions - most often, `dale.do`. As such, it replaces simple while loops where you iterate through integers.
+`dale.times` is a wrapper around the other six functions. It is basically a shorthand for creating an array with consecutive integers `[1, 2, ..., n - 1, n]` and passing it to any of the other functions - most often, `dale.do`. As such, it replaces simple while loops where you iterate through integers.
 
-Besides `times`, which is an integer, this function receives a string with the name of the function you wish to invoke.
-
-```javascript
-   dale.times (3, 'do', function (v) {return v + 1})); // returns [2, 3, 4]
-```
+Besides `times`, which is an integer, this function receives `fun`, a string with the name of the function you wish to invoke.
 
 ```javascript
+   // returns [2, 3, 4]
+   dale.times (3, 'do', function (v) {return v + 1}));
+
    // returns [2, 4]
    dale.times (4, 'fil', undefined, function (v) {
       if (v % 2 === 0) return v;
    });
-```
 
-```javascript
    // returns {1: 2}
    dale.times (2, 'obj', function (v, k) {
       if (v % 2 === 0) return [k, v];
@@ -348,16 +345,14 @@ Besides `times`, which is an integer, this function receives a string with the n
    dale.times (2, 'stop', false, function (v, k) {
       return v % 3 !== 0;
    });
-```
 
-```javascript
    // returns false
    dale.times (4, 'stop', false, function (v, k) {
       return v % 3 !== 0;
    });
 ```
 
-`dale.times` will return a value that has the form of whatever is returned by the `fun` which it invokes.
+`dale.times` will return whatever is returned by the `fun` which it invokes.
 
 ## Inherited properties
 
