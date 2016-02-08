@@ -82,7 +82,7 @@ Please refer to readme.md to read the annotated source.
       }
    }
 
-   // *** THE SIX FUNCTIONS ***
+   // *** THE SEVEN FUNCTIONS ***
 
    dale.do      = make ('do');
    dale.fil     = make ('fil');
