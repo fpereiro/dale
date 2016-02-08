@@ -133,7 +133,7 @@ And you also can use it in node.js. To install: `npm install dale`
 
 ## Functions
 
-dale consists of six functions.
+dale consists of seven functions.
 
 ### `dale.do`
 
@@ -321,6 +321,44 @@ console.log (base);
 
 ```
 
+### `dale.times`
+
+`dale.times` is a wrapper around all the other functions. It is basically a shorthand of creating an array with consecutive integers `[1, 2, ..., n - 1, n]` to any of the other functions - most often, `dale.do`. As such, it replaces simple while loops where you iterate through integers.
+
+Besides `times`, which is an integer, this function receives a string with the name of the function you wish to invoke.
+
+```javascript
+   dale.times (3, 'do', function (v) {return v + 1})); // returns [2, 3, 4]
+```
+
+```javascript
+   // returns [2, 4]
+   dale.times (4, 'fil', undefined, function (v) {
+      if (v % 2 === 0) return v;
+   });
+```
+
+```javascript
+   // returns {1: 2}
+   dale.times (2, 'obj', function (v, k) {
+      if (v % 2 === 0) return [k, v];
+   });
+
+   // returns true
+   dale.times (2, 'stop', false, function (v, k) {
+      return v % 3 !== 0;
+   });
+```
+
+```javascript
+   // returns false
+   dale.times (4, 'stop', false, function (v, k) {
+      return v % 3 !== 0;
+   });
+```
+
+`dale.times` will return a value that has the form of whatever is returned by the `fun` which it invokes.
+
 ## Inherited properties
 
 By default, dale functions iterate an object, it will only iterate the keys that belong to the object directly, ignoring inherited keys.
@@ -370,13 +408,13 @@ The results above were calculated in node, where presumably you will do heavy us
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 90 lines long.
+The complete source code is contained in `dale.js`. It is about 100 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-dale - v3.0.1
+dale - v3.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -452,11 +490,11 @@ Below is the function.
 
 ### The main function
 
-All six functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
+All seven functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
 
 `make` function receives a `what` argument (can be any of `'do'`, `'obj'`, `'fil'`, `'stop'`, `'stopNot'`). It will then return the corresponding dale function.
 
-`dale.keys` is implemented below as a special form of `dale.do`, so the function below is actually concerned with the other five functions.
+`dale.keys` and `dale.times` are wrappers around the other functions, so the function below is actually concerned with the other five functions.
 
 ```javascript
    var make = function (what) {
@@ -607,7 +645,7 @@ We close the loop and return `output`.
    }
 ```
 
-### The six functions
+### The seven functions
 
 We create each of the dale functions. `dale.keys` is simply a lambda function that passes `input` and `inherit` to `dale.do`, using a `fun` that only returns its `key`.
 
@@ -618,6 +656,31 @@ We create each of the dale functions. `dale.keys` is simply a lambda function th
    dale.stop    = make ('stop');
    dale.stopNot = make ('stopNot');
    dale.keys      = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
+```
+
+`dale.times` is meant as a replacement for while loops where we iterate through integers. This function takes `times` (the number of iterations) and a `fun` (a string which can be either `do`, `fil`, `obj`, `stop`, `stopNot` and, `keys`).
+
+```javascript
+   dale.times   = function (times, fun) {
+```
+
+We want to create an array with the form `[1, 2, 3, 4, ..., times - 1, times]`, where times is an integer. For this, we build a while loop.
+
+```javascript
+      var i = 1;
+      var input = [];
+      while (i <= integer) {
+         input.push (i++);
+      }
+```
+
+Note that if `times` is 0, we will get an empty array, which is correct.
+
+We finally return the result of applying `input` (plus other arguments that might be passed) to `dale [fun]`.
+
+```javascript
+      return dale [fun].apply (undefined, [input].concat ([].slice.call (arguments, 2)));
+   }
 ```
 
 We close the module.

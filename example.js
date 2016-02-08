@@ -1,5 +1,5 @@
 /*
-dale - v3.0.1
+dale - v3.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -239,6 +239,31 @@ Run the examples by either including the script in a webpage or by running `node
    check (output, []);
    console.log (output = dale.do (o2, function (v) {return v}, true)); // returns [42]
    check (output, [42]);
+
+   console.log (output = dale.times (3, 'do', function (v) {return v + 1}));
+   check (output, [2, 3, 4]); // returns [2, 3, 4]
+
+   console.log (output = dale.times (4, 'fil', undefined, function (v) {if (v % 2 === 0) return v;}));
+   check (output, [2, 4]); // returns [2, 4]
+
+   console.log (output = dale.times (2, 'obj', function (v, k) {
+      if (v % 2 === 0) return [k, v];
+   }));
+   check (output, {1: 2}); // returns {1: 2}
+
+   console.log (output = dale.times (2, 'stop', false, function (v, k) {
+      return v % 3 !== 0;
+   }));
+   check (output, true); // output will be true
+
+   console.log (output = dale.times (4, 'stop', false, function (v, k) {
+      return v % 3 !== 0;
+   }));
+   check (output, false); // output will be false
+
+   console.log (output = dale.times (4, 'keys'));
+   check (output, [0, 1, 2, 3]); // returns [0, 1, 2, 3]
+
 
    console.log ('\nAll tests passed successfully!\n');
 

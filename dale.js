@@ -1,5 +1,5 @@
 /*
-dale - v3.0.1
+dale - v3.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -90,5 +90,13 @@ Please refer to readme.md to read the annotated source.
    dale.stop    = make ('stop');
    dale.stopNot = make ('stopNot');
    dale.keys    = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
+   dale.times   = function (times, fun) {
+      var i = 1;
+      var input = [];
+      while (i <= times) {
+         input.push (i++);
+      }
+      return dale [fun].apply (undefined, [input].concat ([].slice.call (arguments, 2)));
+   }
 
 }) ();
