@@ -569,20 +569,16 @@ Note that we use `Object.prototype.hasOwnProperty`, in case `input.hasOwnPropert
             if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 ```
 
-If `input` is an array or an `arguments` object, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
-
-This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
-
-```javascript
-            if (inputType === 'array' || inputType === 'arguments') key = parseInt (key);
-```
-
 `input [key]` is the item currently being read by the loop (let's call it `value`). We apply the `value` and the `key` to the `fun`, and store the result in a variable.
 
 Notice that the `fun` receives the `value` as the first argument and the `key` as the second. This inversion is useful since usually the `fun` needs the `value` but not the `key`. In this case, with this argument ordering you can write `function (v) {...}` instead of `function (k, v) {...}`.
 
+Notice that if `input` is an array or an `arguments` object, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
+
+This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
+
 ```javascript
-            var result = fun (input [key], key);
+            var result = fun (input [key], inputType !== 'array' && inputType !== 'arguments' ? key : parseInt (key));
 ```
 
 For the case of `dale.do`, or the case of `dale.fil` when `result` is not equal to `middleArg`, we just push `result` into `output`.

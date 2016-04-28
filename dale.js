@@ -58,9 +58,8 @@ Please refer to readme.md to read the annotated source.
          for (var key in input) {
 
             if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
-            if (inputType === 'array' || inputType === 'arguments') key = parseInt (key);
 
-            var result = fun (input [key], key);
+            var result = fun (input [key], inputType !== 'array' && inputType !== 'arguments' ? key : parseInt (key));
 
             if (what === 'do' || (what === 'fil' && result !== middleArg)) {
                output.push (result);
