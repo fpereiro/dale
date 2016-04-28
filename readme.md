@@ -378,28 +378,26 @@ If you want dale functions to iterate the inherited properties of an object, pas
 
 ## Performance
 
-dale is necessarily slower than a `for` loop, since it consists of a wrapper on top of it. The (very approximate) performance factors are the following:
+dale is necessarily slower than a `for` loop, since it consists of a functional wrapper on top of a `for` loop. Besides its features, dale's emphasis on code succintness (which is achieved by having a single variadic function generating the main loop) probably adds an extra performance hit.
+
+The benchmark I used is included in `example.js` - to execute it just run that file, or open it in a browser. The benchmark attempts to make many iterations without almost any computation, to focus on the raw speed of the underlying loop (be it a real loop or dale's layer on top of it).
+
+Testing different versions of node.js, Chrome and Firefox, here's some (very approximate) performance factors:
 
 ```
 Iterating arrays:
 
 for:  1x
-dale: 2x
+dale: 1.5x-2.5x
 
 Iterating objects:
 
 for:                                    1x
-dale:                                   3x
-dale, without the hasOwnProperty check: 4x
+dale:                                   4.5x-10x
+dale, without the hasOwnProperty check: 3.5x-8x
 ```
 
-This means that dale takes 100% more time when iterating arrays and between 200% and 300% more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of a raw `for` loop.
-
-I am pretty sure that the difference between the performance for arrays and objects has to do with the underlying implementation of javascript, since the code paths for arrays and objects in dale are almost identical.
-
-The benchmark is included in `example.js` - to execute it just run that file, or open it in a browser. The benchmark attempts to make many iterations without almost any computation, to focus on the raw speed of the underlying loop (be it a real loop or dale's layer on top of it).
-
-The results above were calculated in node, where presumably you will do heavy use of dale. In Google Chrome, dale's performance with objects is somewhat better than that of node (2-3x), and with arrays definitely worse (3x). In Firefox, dale's performance with objects is downright slow (10x), but not so with arrays (2-2.5x).
+This means that dale takes roughly twice when iterating arrays and up to *ten times* more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of a raw `for` loop.
 
 ## Source code
 
@@ -409,7 +407,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v3.1.0
+dale - v3.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -469,6 +467,7 @@ Below is the function.
    var type = function (value, objectType) {
       var type = typeof value;
       if (type !== 'object' && type !== 'number') return type;
+      if (value instanceof Array) return 'array';
       if (type === 'number') {
          if      (isNaN (value))      return 'nan';
          else if (! isFinite (value)) return 'infinity';
@@ -541,10 +540,10 @@ We save the type of `input` in a local variable `inputType`. This memoization is
          var inputType = type (input);
 ```
 
-If the value is neither an object or an array, we wrap it in an array so that we can treat it as an array with a single element.
+If the value is neither an object or an array, we wrap it in an array so that we can treat it as an array with a single element. Notice that we also change `inputType` to `array`.
 
 ```javascript
-         if (inputType !== 'array' && inputType !== 'object') input = [input];
+         if (inputType !== 'array' && inputType !== 'object') input = [input], inputType = 'array';
 ```
 
 Here we detect whether `input` is an `arguments` object. If that's the case, we set `inputType` to `arguments`.
@@ -586,24 +585,40 @@ Notice that the `fun` receives the `value` as the first argument and the `key` a
             var result = fun (input [key], key);
 ```
 
-For the case of `dale.do`, we just push `result` into `output`.
+For the case of `dale.do`, or the case of `dale.fil` when `result` is not equal to `middleArg`, we just push `result` into `output`.
+
+We also issue a `continue` statement, because there's nothing else to do in this iteration of the loop.
 
 ```javascript
-            if      (what === 'do')        output.push (result);
-```
-
-For the case of `dale.fil`, if `result` is different from `middleArg`, we push it into `output`.
-
-```javascript
-            else if (what === 'fil') {
-               if (result !== middleArg) output.push (result);
+            if (what === 'do' || (what === 'fil' && result !== middleArg)) {
+               output.push (result);
+               continue;
             }
 ```
 
+For the case of `dale.stop`, if the `result` is equal to `middleArg`, we return `result` to break the loop. Otherwise, we set `output` to `result` and issue a `continue` statement.
+
+```javascript
+            if (what === 'stop') {
+               if (result === middleArg) return result;
+               output = result;
+               continue;
+            }
+```
+
+For the case of `dale.stopNot`, if the `result` is not equal to `middleArg`, we return `result` to break the loop. Otherwise, we set `output` to `result` and issue a `continue` statement.
+
+```javascript
+            if (what === 'stopNot') {
+               if (result !== middleArg) return result;
+               output = result;
+               continue;
+            }
+```
 For the case of `dale.obj`, if `result` is neither an array nor `undefined`, we print an error and return `undefined`.
 
 ```javascript
-            else if (what === 'obj') {
+            if (what === 'obj') {
                if (result !== undefined && type (result) !== 'array') return console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
 ```
 
@@ -611,23 +626,6 @@ Otherwise, if result is not `undefined` (hence an array), we set the key `result
 
 ```javascript
                if (result !== undefined)   output [result [0]] = result [1];
-            }
-```
-
-If we are inside the conditional block below, we are dealing with `stop` or `stopNot`.
-
-```javascript
-            else {
-```
-
-For the case of `stop`, if the `result` is equal to `middleArg`, we return `result` to break the loop. For the case of `stop`, if the `result` is **not** equal to `middleArg`, we return `result` and also break the loop.
-
-If the loop wasn't broken, we set `output` to `result`.
-
-```javascript
-               if      (what === 'stop'    && result === middleArg) return result;
-               else if (what === 'stopNot' && result !== middleArg) return result;
-               else    output = result;
             }
 ```
 

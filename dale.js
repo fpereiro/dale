@@ -1,5 +1,5 @@
 /*
-dale - v3.1.0
+dale - v3.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -18,6 +18,7 @@ Please refer to readme.md to read the annotated source.
    var type = function (value, objectType) {
       var type = typeof value;
       if (type !== 'object' && type !== 'number') return type;
+      if (value instanceof Array) return 'array';
       if (type === 'number') {
          if      (isNaN (value))      return 'nan';
          else if (! isFinite (value)) return 'infinity';
@@ -51,31 +52,33 @@ Please refer to readme.md to read the annotated source.
 
          var inputType = type (input);
 
-         if (inputType !== 'array' && inputType !== 'object') input = [input];
+         if (inputType !== 'array' && inputType !== 'object') input = [input], inputType = 'array';
          if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'arguments';
 
          for (var key in input) {
 
             if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
-
             if (inputType === 'array' || inputType === 'arguments') key = parseInt (key);
 
             var result = fun (input [key], key);
 
-            if      (what === 'do')        output.push (result);
-
-            else if (what === 'fil') {
-               if (result !== middleArg) output.push (result);
+            if (what === 'do' || (what === 'fil' && result !== middleArg)) {
+               output.push (result);
+               continue;
             }
-
-            else if (what === 'obj') {
+            if (what === 'stop') {
+               if (result === middleArg) return result;
+               output = result;
+               continue;
+            }
+            if (what === 'stopNot') {
+               if (result !== middleArg) return result;
+               output = result;
+               continue;
+            }
+            if (what === 'obj') {
                if (result !== undefined && type (result) !== 'array') return console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
                if (result !== undefined)   output [result [0]] = result [1];
-            }
-            else {
-               if      (what === 'stop'    && result === middleArg) return result;
-               else if (what === 'stopNot' && result !== middleArg) return result;
-               else    output = result;
             }
          }
          return output;

@@ -1,5 +1,5 @@
 /*
-dale - v3.1.0
+dale - v3.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -59,6 +59,15 @@ Run the examples by either including the script in a webpage or by running `node
    output = argumentsTest.apply (argumentsTest, input);
 
    check (output, [0, 1, 2]);
+
+   var singleParseKeyTest = function () {
+      return dale.do ('blabla', function (v, k) {
+         console.log ('Element #' + (k + 1) + ' is ' + v);
+         return k + 1;
+      });
+   }
+
+   check (singleParseKeyTest (), [1]);
 
    var input = [1, 2, 'clank', 4];
 
