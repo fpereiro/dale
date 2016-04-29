@@ -407,7 +407,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v3.2.1
+dale - v3.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
