@@ -126,7 +126,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/81569fa1077d7641a216d987a7a95a7251c62b68/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/2208a574ac37037575ae0ee4260b1b0c5062eede/dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
