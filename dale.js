@@ -1,5 +1,5 @@
 /*
-dale - v3.2.0
+dale - v3.2.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -35,31 +35,31 @@ Please refer to readme.md to read the annotated source.
    // *** THE MAIN FUNCTION ***
 
    var make = function (what) {
-      return function (input) {
+      return function (input, second, third, fourth) {
 
-         var middleArg = what === 'do' ? undefined     : (what !== 'obj' ? arguments [1] : (type (arguments [1]) === 'object' ? arguments [1] : {}));
-         var fun       = what === 'do' ? arguments [1] : (what !== 'obj' ? arguments [2] : (type (arguments [1]) === 'object' ? arguments [2] : arguments [1]));
-         var inherit   = arguments [arguments.length - 1] === true ? true : false;
-
-         if (type (fun) !== 'function') {
-            console.log (((what === 'do' || (what === 'obj' && type (arguments [1]) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
-            return false;
-         }
-
-         var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? middleArg : undefined);
+         if      (what === 'do')              var fun = second, inherit = third  === true, output = [];
+         else if (what === 'fil')             var fun = third,  inherit = fourth === true, middleArg = second, output = [];
+         else if (what !== 'obj')             var fun = third,  inherit = fourth === true, middleArg = second, output;
+         else if (type (second) === 'object') var fun = third,  inherit = fourth === true, output = second;
+         else                                 var fun = second, inherit = third  === true, output = {};
 
          if (input === undefined) return output;
+
+         if (type (fun) !== 'function') {
+            console.log (((what === 'do' || (what === 'obj' && type (second) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            return false;
+         }
 
          var inputType = type (input);
 
          if (inputType !== 'array' && inputType !== 'object') input = [input], inputType = 'array';
-         if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'arguments';
+         if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array';
 
          for (var key in input) {
 
             if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
 
-            var result = fun (input [key], inputType !== 'array' && inputType !== 'arguments' ? key : parseInt (key));
+            var result = fun (input [key], inputType === 'array' ? parseInt (key) : key);
 
             if (what === 'do' || (what === 'fil' && result !== middleArg)) {
                output.push (result);

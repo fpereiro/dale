@@ -407,7 +407,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v3.2.0
+dale - v3.2.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -492,46 +492,56 @@ All seven functions of dale have many common elements. As a result, I've factore
 
 ```javascript
    var make = function (what) {
-      return function (input) {
+      return function (input, second, third, fourth) {
 ```
 
-All dale functions receive a `fun` as their last argument. In the case of `dale.do` and `dale.obj`, `fun` is the second argument. However, in the case of `dale.fil`, `dale.stop`, `dale.stopNot` and possibly `dale.obj`, we recognize another argument which we'll name `middleArg` (because it lays between `input` and `fun`).
-
-For `dale.do`, `middleArg` will always be `undefined`, and for all other values, `middleArg` will be always defined. The variable case is that of `dale.obj`, in which we'll consider `middleArg` to be defined only if it's of type `object`. If the latter is not the case, we will initialize `middleArg` to a new empty object.
+For `dale.do`, the arguments received must be `input`, `fun` and an optional `inherit` flag, which must be `true`. We also set `output` to an empty array.
 
 ```javascript
-         var middleArg = what === 'do' ? undefined     : (what !== 'obj' ? arguments [1] : (type (arguments [1]) === 'object' ? arguments [1] : {}));
-         var fun       = what === 'do' ? arguments [1] : (what !== 'obj' ? arguments [2] : (type (arguments [1]) === 'object' ? arguments [2] : arguments [1]));
+         if      (what === 'do')              var fun = second, inherit = third  === true, output = [];
 ```
 
-We set the `inherit` flag, which if enabled will iterate through the inherited properties of an object.
-
-If the last argument passed to the function is `true`, we set it to `true`, otherwise we set it to `false`. Note that every dale function (with the exception of `dale.keys`, which is defined as a special case outside of `make`) receives `fun` as its last required argument. This means that a boolean flag cannot be possibly confused with `fun`.
+For `dale.fil`, the arguments received must be `input`, `middleArg` (which will be the value that must be filtered out), `fun` and an optional `inherit` flag. As with `dale.do`, we set `output` to an empty array.
 
 ```javascript
-         var inherit   = arguments [arguments.length - 1] === true ? true : false;
+         else if (what === 'fil')             var fun = third,  inherit = fourth === true, middleArg = second, output = [];
 ```
+
+The case below corresponds both to `dale.stop` and `dale.stopNot`, which receive `input`, `middleArg` (the value which must be compared to see if the loop has to stop), `fun` and an optional `inherit` flag. We define `output` to be `undefined`.
+
+```javascript
+         else if (what !== 'obj')             var fun = third,  inherit = fourth === true, middleArg = second, output;
+```
+
+If we're here, we're dealing with `dale.obj`. We will consider the case where we receive a base object between `input` and `fun`. In this case, we set `output` to the argument between `input` and `fun`. As with the cases above, we recognize the `inherit` flag.
+
+```javascript
+         else if (type (second) === 'object') var fun = third,  inherit = fourth === true, output = middleArg;
+```
+
+Finally, we consider the case where `dale.obj` doesn't receive a base object. In this case, we accept `input`, `fun`, `inherit` and initialize `output` to an empty object.
+
+```javascript
+         else                                 var fun = second, inherit = third  === true, output = {};
+```
+
+Note that every dale function (with the exception of `dale.keys` and `dale.times` which are defined as special cases outside of `make`) receives `fun` as its last required argument. This means that a boolean flag cannot be possibly confused with `fun`.
+
+For any dale function, if the `input` is `undefined`, we return the default `output`. Notice that in this case, the function returns without executing the `fun` even once.
+
+```javascript
+         if (input === undefined) return output;
+```
+
 We check the type of the arguments. Since `input` and `middleArg` can be anything (except for the case of `dale.obj`, for which we have already checked the type of `middleArg`), we just need to check that `fun` is indeed a function.
 
 If `fun` is not a function, we log an error and return `false`.
 
 ```javascript
          if (type (fun) !== 'function') {
-            console.log (((what === 'do' || (what === 'obj' && type (arguments [1]) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            console.log (((what === 'do' || (what === 'obj' && type (second) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
             return false;
          }
-```
-
-We set up the `output` variable. For `dale.do` and `dale.fil`, we always return an array - hence the default output will be an empty array. For `dale.obj`, we use `middleArg` (which is either a `base object` or an object we created anew). For `dale.stop` and `dale.stopNot`, we always return a single element - hence the default output will be `undefined`.
-
-```javascript
-         var output = (what === 'do' || what === 'fil') ? [] : (what === 'obj' ? middleArg : undefined);
-```
-
-For any dale function, if the `input` is `undefined`, we return the default `output`. Notice that in this case, the function returns without executing the `fun` even once.
-
-```javascript
-         if (input === undefined) return output;
 ```
 
 We save the type of `input` in a local variable `inputType`. This memoization is very important for optimization purposes, since `inputType` will be invoked within the inner loop of the function.
@@ -546,10 +556,10 @@ If the value is neither an object or an array, we wrap it in an array so that we
          if (inputType !== 'array' && inputType !== 'object') input = [input], inputType = 'array';
 ```
 
-Here we detect whether `input` is an `arguments` object. If that's the case, we set `inputType` to `arguments`.
+Here we detect whether `input` is an `arguments` object. If that's the case, we set `inputType` to `array`.
 
 ```javascript
-         if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'arguments';
+         if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array';
 ```
 
 The loop to end all loops:
@@ -560,7 +570,7 @@ The loop to end all loops:
 
 If three conditions are met simultaneously, we skip the current `key`, by issuing a `continue` statement. These conditions are:
 - `input` is an object.
-- `inherit` is not set to `true`.
+- `inherit` is not set.
 - `input` has `key` as an inherited property.
 
 Note that we use `Object.prototype.hasOwnProperty`, in case `input.hasOwnProperty` [was overwritten with another function](http://stackoverflow.com/a/12017703).
@@ -578,12 +588,12 @@ Notice that if `input` is an array or an `arguments` object, we apply `parseInt`
 This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
 
 ```javascript
-            var result = fun (input [key], inputType !== 'array' && inputType !== 'arguments' ? key : parseInt (key));
+            var result = fun (input [key], inputType === 'array' ? parseInt (key) : key);
 ```
 
 For the case of `dale.do`, or the case of `dale.fil` when `result` is not equal to `middleArg`, we just push `result` into `output`.
 
-We also issue a `continue` statement, because there's nothing else to do in this iteration of the loop.
+We also issue a `continue` statement, because if we're in this branch there's nothing else to do in this iteration of the loop.
 
 ```javascript
             if (what === 'do' || (what === 'fil' && result !== middleArg)) {
