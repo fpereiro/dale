@@ -401,13 +401,13 @@ This means that dale takes roughly twice when iterating arrays and up to *ten ti
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 100 lines long.
+The complete source code is contained in `dale.js`. It is about 110 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-dale - v3.3.0
+dale - v3.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -417,7 +417,7 @@ Please refer to readme.md to read the annotated source.
 
 ### Setup
 
-We wrap the entire file in a self-executing lambda function. This practice is usually named *the javascript module pattern*. The purpose of it is to wrap our code in a closure and hence avoid making our local variables exceed their scope, as well as avoiding unwanted references to local variables from other scripts.
+We wrap the entire file in a self-executing anonymous function. This practice is commonly named [the javascript module pattern](http://yuiblog.com/blog/2007/06/12/module-pattern/). The purpose of it is to wrap our code in a closure and hence avoid making the local variables we define here to be available outside of this module. A cursory test indicates that local variables exceed the scope of a file in the browser, but not in node.js. Globals exceed their scope despite this pattern - but we won't be using them.
 
 ```javascript
 (function () {
@@ -495,45 +495,37 @@ All seven functions of dale have many common elements. As a result, I've factore
       return function (input, second, third, fourth) {
 ```
 
-For `dale.do`, the arguments received must be `input`, `fun` and an optional `inherit` flag, which must be `true`. We also set `output` to an empty array.
+For `dale.do`, the arguments received must be `input`, `fun` and an optional `inherit` flag, which must be `true`. We also set `output` to an empty array. Finally, we create a variable `index` to keep track of how many items we added to `output` array - this is strictly for performance purposes.
 
 ```javascript
-         if      (what === 'do')              var fun = second, inherit = third  === true, output = [];
+         if      (what === 'do')              var fun = second, inherit = third  === true, output = [], index = 0;
 ```
 
-For `dale.fil`, the arguments received must be `input`, `middleArg` (which will be the value that must be filtered out), `fun` and an optional `inherit` flag. As with `dale.do`, we set `output` to an empty array.
+For `dale.fil`, the arguments received must be `input`, `second` (which will be the value that must be filtered out), `fun` and an optional `inherit` flag. As with `dale.do`, we set `output` to an empty array and `index` to `0`.
 
 ```javascript
-         else if (what === 'fil')             var fun = third,  inherit = fourth === true, middleArg = second, output = [];
+         else if (what === 'fil')             var fun = third,  inherit = fourth === true, output = [], index = 0;
 ```
 
-The case below corresponds both to `dale.stop` and `dale.stopNot`, which receive `input`, `middleArg` (the value which must be compared to see if the loop has to stop), `fun` and an optional `inherit` flag. We define `output` to be `undefined`.
+The case below corresponds both to `dale.stop` and `dale.stopNot`, which receive `input`, `second` (the value which must be compared to see if the loop has to stop), `fun` and an optional `inherit` flag. We define `output` to be `undefined`.
 
 ```javascript
-         else if (what !== 'obj')             var fun = third,  inherit = fourth === true, middleArg = second, output;
+         else if (what !== 'obj')             var fun = third,  inherit = fourth === true, output;
 ```
 
 If we're here, we're dealing with `dale.obj`. We will consider the case where we receive a base object between `input` and `fun`. In this case, we set `output` to the argument between `input` and `fun`. As with the cases above, we recognize the `inherit` flag.
 
 ```javascript
-         else if (type (second) === 'object') var fun = third,  inherit = fourth === true, output = middleArg;
+         else if (type (second) === 'object') var fun = third,  inherit = fourth === true, output = second;
 ```
 
 Finally, we consider the case where `dale.obj` doesn't receive a base object. In this case, we accept `input`, `fun`, `inherit` and initialize `output` to an empty object.
 
 ```javascript
-         else                                 var fun = second, inherit = third  === true, output = {};
+         else                                 var fun = second, inherit = third  === true,                     output = {};
 ```
 
-Note that every dale function (with the exception of `dale.keys` and `dale.times` which are defined as special cases outside of `make`) receives `fun` as its last required argument. This means that a boolean flag cannot be possibly confused with `fun`.
-
-For any dale function, if the `input` is `undefined`, we return the default `output`. Notice that in this case, the function returns without executing the `fun` even once.
-
-```javascript
-         if (input === undefined) return output;
-```
-
-We check the type of the arguments. Since `input` and `middleArg` can be anything (except for the case of `dale.obj`, for which we have already checked the type of `middleArg`), we just need to check that `fun` is indeed a function.
+We check the type of the arguments. Since `input` and `second` can be anything (except for the case of `dale.obj`, for which we have already checked the type of `second`), we just need to check that `fun` is indeed a function.
 
 If `fun` is not a function, we log an error and return `false`.
 
@@ -544,22 +536,36 @@ If `fun` is not a function, we log an error and return `false`.
          }
 ```
 
-We save the type of `input` in a local variable `inputType`. This memoization is very important for optimization purposes, since `inputType` will be invoked within the inner loop of the function.
+For any dale function, if the `input` is `undefined`, we return the default `output`. Notice that in this case, the function returns without executing the `fun` even once.
+
+```javascript
+         if (input === undefined) return output;
+```
+
+We save the type of `input` in a local variable `inputType`. This memoization is very important for optimization purposes, since `inputType` will be used from within the inner loop of the function.
 
 ```javascript
          var inputType = type (input);
 ```
 
-If the value is neither an object or an array, we wrap it in an array so that we can treat it as an array with a single element. Notice that we also change `inputType` to `array`.
+Now, `inputType` can be either an array, an object, or something else. If it is an array, we don't want to do anything.
 
 ```javascript
-         if (inputType !== 'array' && inputType !== 'object') input = [input], inputType = 'array';
+         if      (inputType === 'array')  {}
 ```
 
-Here we detect whether `input` is an `arguments` object. If that's the case, we set `inputType` to `array`.
+If it is an object, we want to check whether this is an `arguments` object, which we want to treat like an array. To ascertain this we use `Object.prototype.toString` instead of `type` simply for performance purposes.
 
 ```javascript
-         if (inputType === 'object' && Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array';
+         else if (inputType === 'object') {
+            if (Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array';
+         }
+```
+
+If its neither, we transform `input` into `[input]` (so that we consider it as an array with one element) and set `inputType` to `array`.
+
+```javascript
+         else inputType = 'array', input = [input];
 ```
 
 The loop to end all loops:
@@ -568,70 +574,77 @@ The loop to end all loops:
          for (var key in input) {
 ```
 
-If three conditions are met simultaneously, we skip the current `key`, by issuing a `continue` statement. These conditions are:
-- `input` is an object.
+At this point, `inputType` can only be `array` or `object`. If it is the former, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
+
+This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
+
+```javascript
+            if (inputType === 'array') key = parseInt (key);
+```
+
+If we're in the block below, `inputType` is `object`.
+
+```javascript
+            else {
+```
+
+If two conditions are met simultaneously, we skip the current `key`, by issuing a `continue` statement. These conditions are:
 - `inherit` is not set.
 - `input` has `key` as an inherited property.
 
-Note that we use `Object.prototype.hasOwnProperty`, in case `input.hasOwnProperty` [was overwritten with another function](http://stackoverflow.com/a/12017703).
-
 ```javascript
-            if (inputType === 'object' && ! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
+               if (! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
+            }
 ```
+
+Notice we combine this conditional with the one with `inputType === 'array'` to avoid an extra comparison. We are here in the inner loop of the library and any possible saving has significant effect on performance.
 
 `input [key]` is the item currently being read by the loop (let's call it `value`). We apply the `value` and the `key` to the `fun`, and store the result in a variable.
 
 Notice that the `fun` receives the `value` as the first argument and the `key` as the second. This inversion is useful since usually the `fun` needs the `value` but not the `key`. In this case, with this argument ordering you can write `function (v) {...}` instead of `function (k, v) {...}`.
 
-Notice that if `input` is an array or an `arguments` object, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
-
-This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
-
 ```javascript
-            var result = fun (input [key], inputType === 'array' ? parseInt (key) : key);
+            var result = fun (input [key], key);
 ```
 
-For the case of `dale.do`, or the case of `dale.fil` when `result` is not equal to `middleArg`, we just push `result` into `output`.
-
-We also issue a `continue` statement, because if we're in this branch there's nothing else to do in this iteration of the loop.
+For the case of `dale.do`, or the case of `dale.fil` when `result` is not equal to `second`, we append `result` into `output`. As we do this, we increment `index` (which is only defined for these two cases).
 
 ```javascript
-            if (what === 'do' || (what === 'fil' && result !== middleArg)) {
-               output.push (result);
-               continue;
+            if      (what === 'do')   output [index++] = result;
+            else if (what === 'fil') {
+               if (result !== second) output [index++] = result;
             }
 ```
 
-For the case of `dale.stop`, if the `result` is equal to `middleArg`, we return `result` to break the loop. Otherwise, we set `output` to `result` and issue a `continue` statement.
+For the case of `dale.stop`, if the `result` is equal to `second`, we return `result` to break the loop. Otherwise, we set `output` to `result`.
 
 ```javascript
-            if (what === 'stop') {
-               if (result === middleArg) return result;
+            else if (what === 'stop') {
+               if (result === second) return result;
                output = result;
-               continue;
             }
 ```
 
-For the case of `dale.stopNot`, if the `result` is not equal to `middleArg`, we return `result` to break the loop. Otherwise, we set `output` to `result` and issue a `continue` statement.
+For the case of `dale.stopNot`, if the `result` is not equal to `second`, we return `result` to break the loop. Otherwise, we set `output` to `result`.
 
 ```javascript
-            if (what === 'stopNot') {
-               if (result !== middleArg) return result;
+            else if (what === 'stopNot') {
+               if (result !== second) return result;
                output = result;
-               continue;
             }
 ```
-For the case of `dale.obj`, if `result` is neither an array nor `undefined`, we print an error and return `undefined`.
+
+Finally, for the case of `dale.obj`:
+
+- If `result` is `undefined`, no key will be set. We emit a `continue` statement.
+- If `result` is not an `array`, we return `undefined` and print an error message.
+- Otherwise, we set the key `result [0]` of `output` to `result [1]`.
 
 ```javascript
-            if (what === 'obj') {
-               if (result !== undefined && type (result) !== 'array') return console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
-```
-
-Otherwise, if result is not `undefined` (hence an array), we set the key `result [0]` of `output` to `result [1]`.
-
-```javascript
-               if (result !== undefined)   output [result [0]] = result [1];
+            else {
+               if (result === undefined) continue;
+               if (type (result) !== 'array') return console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
+               output [result [0]] = result [1];
             }
 ```
 

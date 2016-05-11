@@ -1,5 +1,5 @@
 /*
-dale - v3.3.0
+dale - v3.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -273,6 +273,20 @@ Run the examples by either including the script in a webpage or by running `node
    console.log (output = dale.times (4, 'keys'));
    check (output, [0, 1, 2, 3]); // returns [0, 1, 2, 3]
 
+   console.log (output = dale.do (1, function (v) {return v + 1}));
+   check (output, [2]); // returns [2]
+
+   console.log (output = dale.fil (1, 3, function (v) {return v + 1}));
+   check (output, [2]); // returns [2]
+
+   console.log (output = dale.stop (1, 1, function (v) {return v}));
+   check (output, 1); // returns 1
+
+   console.log (output = dale.stopNot (1, 1, function (v) {return v}));
+   check (output, 1); // returns 1
+
+   console.log (output = dale.obj (1, function (v) {return [v, v]}));
+   check (output, {1: 1}); // returns {1: 1}
 
    console.log ('\nAll tests passed successfully!\n');
 
@@ -289,8 +303,7 @@ Run the examples by either including the script in a webpage or by running `node
       for (var user in users.data) {
          var User = {};
          for (var field in users.data [user]) {
-            if (field === '0') continue;
-            User [users.columns [field]] = users.data [user] [field];
+            if (field !== '0') User [users.columns [field]] = users.data [user] [field];
          }
          output [users.data [user] [0]] = User;
       }
@@ -298,16 +311,11 @@ Run the examples by either including the script in a webpage or by running `node
    }
 
    function daleArray () {
-      var output = {};
-      dale.do (users.data, function (user) {
-         var User = {};
-         dale.do (user, function (value, key) {
-            if (key === 0) return;
-            User [users.columns [key]] = value;
-         });
-         output [user [0]] = User;
+      return dale.obj (users.data, function (user, userKey) {
+         return [user [0], dale.obj (user, function (value, key) {
+            if (key !== 0) return [users.columns [key], value];
+         })];
       });
-      return output;
    }
 
    var object = forArray ();
@@ -346,13 +354,14 @@ Run the examples by either including the script in a webpage or by running `node
          fun ();
          times--;
       }
-      console.log ((fun + '').match (/^function [A-Za-z0-9_]+/) [0], '\t', 'executed', oTimes, 'times in', '\t', Date.now () - start, 'milliseconds');
-      return Date.now () - start;
+      var end = Date.now ();
+      console.log ((fun + '').match (/^function [A-Za-z0-9_]+/) [0], '\t', 'executed', oTimes, 'times in', '\t', end - start, 'milliseconds');
+      return end - start;
    }
 
    var multiBenchmark = function (times, iterations) {
       // We check that the test functions return the same output.
-      check (forArray (), daleArray ());
+      check (forArray (),  daleArray ());
       check (forObject (), daleObject ());
       check (forObject (), daleObjectOwn ());
 
@@ -368,8 +377,8 @@ Run the examples by either including the script in a webpage or by running `node
          console.log ('----------------------------');
          times--;
       }
-      console.log ('\nforArray: 1x,\ndaleArray: ' + (result.aDale / result.aFor) + 'x\n');
-      console.log ('forObject: 1x,\ndaleObject: ' + (result.oDale / result.oFor) + 'x\ndaleObjectOwn: ' + (result.oDaleObj / result.oFor) + 'x\n');
+      console.log ('\nforArray: 1x,\ndaleArray: ' + ((result.aDale / result.aFor) + '').slice (0, 5) + 'x\n');
+      console.log ('forObject: 1x,\ndaleObject: ' + ((result.oDale / result.oFor) + '').slice (0, 5) + 'x\ndaleObjectOwn: ' + ((result.oDaleObj / result.oFor) + '').slice (0, 5) + 'x\n');
    }
 
    // Run the benchmark 5 times, with 2000 iterations per test function.
