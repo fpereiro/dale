@@ -115,6 +115,12 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    ```
 
+## Current status of the project
+
+The current version of dale, v3.5.0, is considered to be *stable* and *complete*. Suggestions and patches are welcome. Besides bug fixes, possible future changes are:
+
+- Functional and performance improvements in `dale.times`.
+
 ## Installation
 
 dale is written in Javascript. You can use it in the browser by sourcing the main file.
@@ -126,7 +132,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/6360fc6ee346d519202246f586947bafd7960d83/dale.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
@@ -407,7 +413,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v3.4.0
+dale - v3.5.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
