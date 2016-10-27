@@ -1,5 +1,5 @@
 /*
-dale - v3.5.0
+dale - v4.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -97,13 +97,19 @@ Please refer to readme.md to read the annotated source.
    dale.stop    = make ('stop');
    dale.stopNot = make ('stopNot');
    dale.keys    = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
-   dale.times   = function (times, fun) {
-      var i = 1;
-      var input = [];
-      while (i <= times) {
-         input.push (i++);
+   dale.times   = function (steps, start, step) {
+      if (type (steps) !== 'integer' || steps <= 0)                    return console.log ('steps must be an integer larger than zero.');
+      if (start === undefined) start = 1;
+      else if (type (start) !== 'integer' && type (start) !== 'float') return console.log ('start must be an integer or float.');
+      if (step  === undefined) step  = 1;
+      else if (type (step) !== 'integer'  && type (step)  !== 'float') return console.log ('step must be an integer or float.');
+
+      var output = [start];
+      while (output.length < steps) {
+         start += step;
+         output.push (start);
       }
-      return dale [fun].apply (undefined, [input].concat ([].slice.call (arguments, 2)));
+      return output;
    }
 
 }) ();

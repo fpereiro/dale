@@ -1,5 +1,5 @@
 /*
-dale - v3.5.0
+dale - v4.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -249,29 +249,32 @@ Run the examples by either including the script in a webpage or by running `node
    console.log (output = dale.do (o2, function (v) {return v}, true)); // returns [42]
    check (output, [42]);
 
-   console.log (output = dale.times (3, 'do', function (v) {return v + 1}));
+   console.log (output = dale.do (dale.times (3), function (v) {return v + 1}));
    check (output, [2, 3, 4]); // returns [2, 3, 4]
 
-   console.log (output = dale.times (4, 'fil', undefined, function (v) {if (v % 2 === 0) return v;}));
+   console.log (output = dale.fil (dale.times (4), undefined, function (v) {if (v % 2 === 0) return v;}));
    check (output, [2, 4]); // returns [2, 4]
 
-   console.log (output = dale.times (2, 'obj', function (v, k) {
+   console.log (output = dale.obj (dale.times (2), function (v, k) {
       if (v % 2 === 0) return [k, v];
    }));
    check (output, {1: 2}); // returns {1: 2}
 
-   console.log (output = dale.times (2, 'stop', false, function (v, k) {
+   console.log (output = dale.stop (dale.times (2), false, function (v, k) {
       return v % 3 !== 0;
    }));
    check (output, true); // output will be true
 
-   console.log (output = dale.times (4, 'stop', false, function (v, k) {
+   console.log (output = dale.stop (dale.times (4), false, function (v, k) {
       return v % 3 !== 0;
    }));
    check (output, false); // output will be false
 
-   console.log (output = dale.times (4, 'keys'));
+   console.log (output = dale.keys (dale.times (4)));
    check (output, [0, 1, 2, 3]); // returns [0, 1, 2, 3]
+
+   console.log (output = dale.do (dale.times (4, 0, 2), function (v) {return v}));
+   check (output, [0, 2, 4, 6]); // returns [0, 2, 4, 6]
 
    console.log (output = dale.do (1, function (v) {return v + 1}));
    check (output, [2]); // returns [2]
@@ -287,6 +290,11 @@ Run the examples by either including the script in a webpage or by running `node
 
    console.log (output = dale.obj (1, function (v) {return [v, v]}));
    check (output, {1: 1}); // returns {1: 1}
+
+   check (undefined, dale.times (0));
+   check (undefined, dale.times (0.5));
+   check (undefined, dale.times (1, /a/));
+   check (undefined, dale.times (1, 1, /a/));
 
    console.log ('\nAll tests passed successfully!\n');
 
