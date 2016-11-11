@@ -1,9 +1,19 @@
 /*
-dale - v4.0.0
+dale - v4.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
-Run the examples by either including the script in a webpage or by running `node example` at the command prompt.
+To run the tests:
+   - node.js: enter `node test` at the command prompt.
+   - browser: copy the following two lines into a new file and open it with your browser.
+
+// Start copying here
+
+<script src="dale.js"></script>
+<script src="test.js"></script>
+
+// End copying here
+
 */
 
 (function () {
