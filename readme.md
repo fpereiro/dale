@@ -130,7 +130,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src=""></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/a168912fdffddadb84a662f10e8bfa76d8e11beb/dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
@@ -793,8 +793,6 @@ This function takes up to four arguments.
 - `acc` is the initial value for the accumulator. If `acc` is omitted, we consider the first element of `input` to be `acc`.
 - `fun` is the function that does the *reduction* operation on two arguments.
 - `inherit` is a flag that determines whether to iterate or not the inherited elements of `input`.
-
-- `inherit`
 
 ```javascript
    dale.acc = function (input, second, third, fourth) {
