@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v4.1.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of dale, v4.2.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 ## Installation
 
@@ -130,14 +130,14 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/1bb6973037dd409f667231d51c55845672d19821/dale.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
 
 ## Functions
 
-dale consists of seven functions.
+dale consists of eight functions.
 
 ### `dale.do`
 
@@ -146,6 +146,8 @@ dale consists of seven functions.
    - For each `element` in the `input`, it executes the `function`, passing the `element` and the `key` of the element as arguments and pushes the result into an `output` array.
    - Returns the `output` array.
    - Returns an array where each element is the result of each `function` application.
+
+The general idea of the function is quite similar to that of `Array.map`, but the function accepts inputs of any type.
 
 ```javascript
 
@@ -214,6 +216,8 @@ Notice that `dale.fil` always returns an array with zero or more elements.
    - Applies the following `function` to the input: `function (v, k) {return k}` and pushes each result to the `output` array.
    - Returns the `output` array.
 
+The general idea of this function is quite similar to that of `Object.keys`, but the function accepts inputs of any type.
+
 ```javascript
 
 dale.keys ({'foo': true, 'bar': false, 'hip': undefined})
@@ -266,6 +270,27 @@ dale.stopNot ([2, 3, 4],       true, returnIfNotNumber)    // returns true
 dale.stopNot ([2, 'trois', 4], true, returnIfNotNumber)    // returns 'trois'
 dale.stopNot ([],              true, returnIfNotNumber)    // returns undefined
 
+```
+
+### `dale.acc`
+
+`dale.acc` is a function for *accumulating* results into one and then returning it. This function:
+   - Takes an `input` as its first argument - it can be of any type.
+   - Takes an optional `firstValue`, which can be used as the initial value for the accumulator. Otherwise, the first element of `input` will be considered as the `firstValue`. Notice that the former variant is akin to `fold`, whereas the latter is akin to `reduce`.
+   - Takes a `fun`, the function that accumulates two values.
+
+The general idea of this function is quite similar to that of `Array.fold` and `Array.reduce`, but the function accepts inputs of any type.
+
+```javascript
+   dale.acc ([1, 2, 3], function (a, b) {return a + b}); // returns 6
+
+   dale.acc ({x: 1, y: 2, z: 3}, function (a, b) {return a + b}); // returns 6
+
+   dale.acc ([1, 2, 3], function (a, b) {return a * b}); // returns 6
+
+   dale.acc ([2, 3], 1, function (a, b) {return a + b}); // returns 6
+
+   dale.acc (['A', 'B', 'C'], function (a, b) {return a + b}); // returns 'ABC';
 ```
 
 ### `dale.obj`
@@ -329,7 +354,7 @@ console.log (base);
 
 `dale.times` is a function that generates an array of numbers - it is an indirect equivalent of a `while` loop, since it creates an array with consecutive integers `[1, 2, ..., n - 1, n]` which can then be passed to any of the other functions - most often, `dale.do`.
 
-The only required parameter is `times`, an integer larger than 0 which states the length of the returned array.
+The only required parameter is `times`, which can be either a positive integer or 0, and which states the length of the returned array.
 
 ```javascript
 dale.times (3);
@@ -387,6 +412,9 @@ Here's how you can use `dale.times` within the context of other functions.
    dale.stop (dale.times (4), false, function (v, k) {
       return v % 3 !== 0;
    });
+
+   // returns 15
+   dale.acc (dale.times (5), function (a, b) {return a + b});
 ```
 
 ## Inherited properties
@@ -436,13 +464,13 @@ This means that dale takes roughly twice when iterating arrays and up to *ten ti
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 120 lines long.
+The complete source code is contained in `dale.js`. It is about 140 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-dale - v4.1.0
+dale - v4.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -519,11 +547,11 @@ Below is the function.
 
 ### The main function
 
-All seven functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
+All eight functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
 
 `make` function receives a `what` argument (can be any of `'do'`, `'obj'`, `'fil'`, `'stop'`, `'stopNot'`). It will then return the corresponding dale function.
 
-`dale.keys` and `dale.times` are wrappers around the other functions, so the function below is actually concerned with the other five functions.
+`dale.keys`, `dale.times` and `dale.acc` are wrappers around the other functions, so the function below is actually concerned with the other five functions.
 
 ```javascript
    var make = function (what) {
@@ -692,7 +720,7 @@ We close the loop and return `output`.
    }
 ```
 
-### The seven functions
+### The eight functions
 
 We create each of the dale functions. `dale.keys` is simply a lambda function that passes `input` and `inherit` to `dale.do`, using a `fun` that only returns its `key`.
 
@@ -713,14 +741,15 @@ We create each of the dale functions. `dale.keys` is simply a lambda function th
 
 We validate and initialize the inputs:
 
-- `start` has to be an integer larger than 0.
+- `steps` has to be an integer larger than or equal to 0. If it's equal to 0, we immediately return an empty array.
 - `start` is either undefined or an integer or a float. If undefined, we set it to 1.
 - `step` is either undefined or an integer or a float. If undefined, we set it to 1.
 
 If any of these conditions is violated, we print an error message and return `undefined.`
 
 ```javascript
-      if (type (steps) !== 'integer' || steps <= 0)                    return console.log ('steps must be an integer larger than zero.');
+      if (steps === 0) return [];
+      if (type (steps) !== 'integer' || steps < 0)                     return console.log ('steps must be a positive integer or zero.');
       if (start === undefined) start = 1;
       else if (type (start) !== 'integer' && type (start) !== 'float') return console.log ('start must be an integer or float.');
       if (step  === undefined) step  = 1;
@@ -751,6 +780,83 @@ We return `output` and close the function.
 
 ```javascript
       return output;
+   }
+```
+
+`dale.acc` is a function for *accumulating* results into one, using a function that takes an accumulator (result of previous operations) and a new item on each iteration. It provides the functionality of the functional operations commonly named `reduce` and `fold`.
+
+While this function could be possibly inserted into the main function that implements most of the other functions, I felt that its particularities would make the main function more complex and slower, so I opted to write it as a standalone function that calls `dale.do` in its inner loop.
+
+This function takes up to four arguments.
+
+- The first argument is always `input`, which can be of any type.
+- `acc` is the initial value for the accumulator. If `acc` is omitted, we consider the first element of `input` to be `acc`.
+- `fun` is the function that does the *reduction* operation on two arguments.
+- `inherit` is a flag that determines whether to iterate or not the inherited elements of `input`.
+
+- `inherit`
+
+```javascript
+   dale.acc = function (input, second, third, fourth) {
+```
+
+To determine whether it was passed or not, we count the amount of arguments passed. `fun` (the following argument) is required, but the `inherit` flag is also optional. To note whether `inherit` is passed we check whether the last argument is boolean (since `fun` cannot be a boolean).
+
+Now, if `inherit` is not passed, then if there's 3 arguments we will consider `acc` to be the second one (with `fun` being the third). If, however, `inherit` is passed, we'll consider `acc` to be passed if there's 4 arguments.
+
+```javascript
+      var hasAcc  = arguments.length === (type (arguments [arguments.length - 1]) === 'boolean' ? 4 : 3);
+      var acc     = hasAcc ? second : undefined;
+      var fun     = hasAcc ? third  : second;
+      var inherit = hasAcc ? fourth : third;
+```
+
+We check whether `fun` is of the right type. Otherwise, we print an error and return `false`.
+
+```javascript
+      if (type (fun) !== 'function') {
+         console.log ('fun must be a function but instead is of type', type (fun));
+         return false;
+      }
+```
+
+We initialize a variable `first` that will tell us whether we are in the first element of `input` or not - this is necessary for the case where `input` is an object.
+
+```javascript
+      var first = true;
+```
+
+We invoke `dale.do` on our `input` and a function.
+
+```javascript
+      dale.do (input, function (v, k) {
+```
+
+If no accumulator was passed and we're iterating the first element of `input`, we set `first` to `false` (to mark that we have already processed it) and then we set `acc` to the value of this element.
+
+```javasript
+         if (! hasAcc && first) {
+            first = false;
+            return acc = v;
+         }
+```
+
+In every other case, we set `acc` to the value returned by `fun` when it is passed `acc` and the element currently being iterated.
+
+```javascript
+         acc = fun (acc, v);
+```
+
+We close the inner loop. Notice we pass the `inherit` flag to `dale.do`.
+
+```javascript
+      }, inherit);
+```
+
+We return `acc` and close the function.
+
+```javascript
+      return acc;
    }
 ```
 

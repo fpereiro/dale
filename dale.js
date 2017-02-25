@@ -1,5 +1,5 @@
 /*
-dale - v4.1.0
+dale - v4.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -89,7 +89,7 @@ Please refer to readme.md to read the annotated source.
       }
    }
 
-   // *** THE SEVEN FUNCTIONS ***
+   // *** THE EIGHT FUNCTIONS ***
 
    dale.do      = make ('do');
    dale.fil     = make ('fil');
@@ -98,7 +98,8 @@ Please refer to readme.md to read the annotated source.
    dale.stopNot = make ('stopNot');
    dale.keys    = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
    dale.times   = function (steps, start, step) {
-      if (type (steps) !== 'integer' || steps <= 0)                    return console.log ('steps must be an integer larger than zero.');
+      if (steps === 0) return [];
+      if (type (steps) !== 'integer' || steps < 0)                     return console.log ('steps must be a positive integer or zero.');
       if (start === undefined) start = 1;
       else if (type (start) !== 'integer' && type (start) !== 'float') return console.log ('start must be an integer or float.');
       if (step  === undefined) step  = 1;
@@ -110,6 +111,27 @@ Please refer to readme.md to read the annotated source.
          output.push (start);
       }
       return output;
+   }
+
+   dale.acc = function (input, second, third, fourth) {
+      var hasAcc  = arguments.length === (type (arguments [arguments.length - 1]) === 'boolean' ? 4 : 3);
+      var acc     = hasAcc ? second : undefined;
+      var fun     = hasAcc ? third  : second;
+      var inherit = hasAcc ? fourth : third;
+      if (type (fun) !== 'function') {
+         console.log ('fun must be a function but instead is of type', type (fun));
+         return false;
+      }
+      var first = true;
+      dale.do (input, function (v, k) {
+         if (! hasAcc && first) {
+            first = false;
+            return acc = v;
+         }
+         acc = fun (acc, v);
+      }, inherit);
+
+      return acc;
    }
 
 }) ();

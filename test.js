@@ -1,5 +1,5 @@
 /*
-dale - v4.1.0
+dale - v4.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -259,6 +259,24 @@ To run the tests:
    console.log (output = dale.do (o2, function (v) {return v}, true)); // returns [42]
    check (output, [42]);
 
+   console.log (output = dale.acc ([1, 2, 3], function (a, b) {return a + b}));
+   check (output, 6);
+
+   console.log (output = dale.acc ({x: 1, y: 2, z: 3}, function (a, b) {return a + b}));
+   check (output, 6);
+
+   console.log (output = dale.acc ([1, 2, 3], function (a, b) {return a * b}));
+   check (output, 6);
+
+   console.log (output = dale.acc ([2, 3], 1, function (a, b) {return a + b}));
+   check (output, 6);
+
+   console.log (output = dale.acc (['A', 'B', 'C'], function (a, b) {return a + b}));
+   check (output, 'ABC');
+
+   console.log (output = dale.acc ([1, 2, 3], /notafunction/));
+   check (output, false);
+
    console.log (output = dale.do (dale.times (3), function (v) {return v + 1}));
    check (output, [2, 3, 4]); // returns [2, 3, 4]
 
@@ -301,7 +319,12 @@ To run the tests:
    console.log (output = dale.obj (1, function (v) {return [v, v]}));
    check (output, {1: 1}); // returns {1: 1}
 
-   check (undefined, dale.times (0));
+   console.log (output = dale.times (0));
+   check (output, []); // returns []
+
+   console.log (output = dale.acc (dale.times (5), function (a, b) {return a + b}));
+   check (output, 15); // returns 15
+
    check (undefined, dale.times (0.5));
    check (undefined, dale.times (1, /a/));
    check (undefined, dale.times (1, 1, /a/));
