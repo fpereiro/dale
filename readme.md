@@ -135,6 +135,10 @@ Or you can use this link to the latest version - courtesy of [RawGit](https://ra
 
 And you also can use it in node.js. To install: `npm install dale`
 
+dale is pure ES5 javascript and it will work in any version of node.js. Browser compatibility is currently being tested on multiple browsers. The author wishes to thank [Browserstack](https://www.browserstack.com) for making it easy to test cross-browser compatibility.
+
+<img src="https://bstacksupport.zendesk.com/attachments/token/kkjj6piHDCXiWrYlNXjKbFveo/?name=Logo-01.svg">
+
 ## Functions
 
 dale consists of eight functions.
