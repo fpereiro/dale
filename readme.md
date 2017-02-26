@@ -137,9 +137,9 @@ And you also can use it in node.js. To install: `npm install dale`
 
 dale is pure ES5 javascript and it will work in any version of node.js. Browser compatibility is currently being tested on multiple browsers.
 
-<p style="line-height: 33px">The author wishes to thank <a href="https://www.browserstack.com"><img src="https://bstacksupport.zendesk.com/attachments/token/kkjj6piHDCXiWrYlNXjKbFveo/?name=Logo-01.svg" width="150px" height="33px"></a> for providing tools to test cross-browser compatibility.</p>
+The author wishes to thank [Browserstack](https://browserstack.com) for providing tools to test cross-browser compatibility.
 
-
+<a href="https://www.browserstack.com"><img src="https://bstacksupport.zendesk.com/attachments/token/kkjj6piHDCXiWrYlNXjKbFveo/?name=Logo-01.svg" width="150px" height="33px"></a>
 
 ## Functions
 
