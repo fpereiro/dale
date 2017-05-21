@@ -130,12 +130,12 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/a168912fdffddadb84a662f10e8bfa76d8e11beb/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/9135a9699d53aac1eccc33becb31e7d402a52214/dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
 
-dale is pure ES5 javascript and it should work in any version of node.js (tested on v0.8.0 and above). Browser compatibility is as follows:
+dale is pure ES5 javascript and it should work in any version of node.js (tested in v0.8.0 and above). Browser compatibility is as follows:
 
 - Chrome 15 and above.
 - Firefox 22 and above.
