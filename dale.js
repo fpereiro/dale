@@ -1,5 +1,5 @@
 /*
-dale - v4.2.0
+dale - v4.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -81,7 +81,10 @@ Please refer to readme.md to read the annotated source.
             }
             else {
                if (result === undefined) continue;
-               if (type (result) !== 'array') return console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
+               if (type (result) !== 'array') {
+                  console.log ('aValue returned by fun must be an array but instead is of type ' + type (result));
+                  return;
+               }
                output [result [0]] = result [1];
             }
          }
@@ -99,11 +102,20 @@ Please refer to readme.md to read the annotated source.
    dale.keys    = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
    dale.times   = function (steps, start, step) {
       if (steps === 0) return [];
-      if (type (steps) !== 'integer' || steps < 0)                     return console.log ('steps must be a positive integer or zero.');
+      if (type (steps) !== 'integer' || steps < 0) {
+         console.log ('steps must be a positive integer or zero.');
+         return;
+      }
       if (start === undefined) start = 1;
-      else if (type (start) !== 'integer' && type (start) !== 'float') return console.log ('start must be an integer or float.');
+      else if (type (start) !== 'integer' && type (start) !== 'float') {
+         console.log ('start must be an integer or float.');
+         return;
+      }
       if (step  === undefined) step  = 1;
-      else if (type (step) !== 'integer'  && type (step)  !== 'float') return console.log ('step must be an integer or float.');
+      else if (type (step) !== 'integer'  && type (step)  !== 'float') {
+         console.log ('step must be an integer or float.');
+         return;
+      }
 
       var output = [start];
       while (output.length < steps) {

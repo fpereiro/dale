@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v4.2.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v4.3.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 ## Installation
 
@@ -135,7 +135,13 @@ Or you can use this link to the latest version - courtesy of [RawGit](https://ra
 
 And you also can use it in node.js. To install: `npm install dale`
 
-dale is pure ES5 javascript and it will work in any version of node.js. Browser compatibility is currently being tested on multiple browsers.
+dale is pure ES5 javascript and it should work in any version of node.js (tested on v0.8.0 and above). Browser compatibility is as follows:
+
+- Chrome 15 and above.
+- Firefox 22 and above.
+- Safari 5.1 and above.
+- IE9 and above.
+- Opera 11.6 and above.
 
 The author wishes to thank [Browserstack](https://browserstack.com) for providing tools to test cross-browser compatibility.
 
@@ -470,13 +476,13 @@ This means that dale takes roughly twice when iterating arrays and up to *ten ti
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 140 lines long.
+The complete source code is contained in `dale.js`. It is about 150 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-dale - v4.2.0
+dale - v4.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -712,7 +718,10 @@ Finally, for the case of `dale.obj`:
 ```javascript
             else {
                if (result === undefined) continue;
-               if (type (result) !== 'array') return console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
+               if (type (result) !== 'array') {
+                  console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
+                  return;
+               }
                output [result [0]] = result [1];
             }
 ```
@@ -755,11 +764,20 @@ If any of these conditions is violated, we print an error message and return `un
 
 ```javascript
       if (steps === 0) return [];
-      if (type (steps) !== 'integer' || steps < 0)                     return console.log ('steps must be a positive integer or zero.');
+      if (type (steps) !== 'integer' || steps < 0) {
+         console.log ('steps must be a positive integer or zero.');
+         return;
+      }
       if (start === undefined) start = 1;
-      else if (type (start) !== 'integer' && type (start) !== 'float') return console.log ('start must be an integer or float.');
+      else if (type (start) !== 'integer' && type (start) !== 'float') {
+         console.log ('start must be an integer or float.');
+         return;
+      }
       if (step  === undefined) step  = 1;
-      else if (type (step) !== 'integer'  && type (step)  !== 'float') return console.log ('step must be an integer or float.');
+      else if (type (step) !== 'integer'  && type (step)  !== 'float') {
+         console.log ('step must be an integer or float.');
+         return;
+      }
 ```
 
 We initialize `output` to an array with one element, `start`.

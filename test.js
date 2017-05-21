@@ -1,5 +1,5 @@
 /*
-dale - v4.2.0
+dale - v4.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -22,12 +22,18 @@ To run the tests:
 
    var dale = isNode ? require ('./dale.js') : window.dale;
 
+   dale.perf = true;
+
    // *** TESTS ***
 
+   var checkCounter = 0;
+
    var check = function (a, b) {
+      checkCounter++;
       if (JSON.stringify (a) !== JSON.stringify (b)) {
-         console.log ('A test just failed!');
-         process.exit (1);
+         dale.perf = false;
+         console.log ('A test just failed!', checkCounter);
+         throw new Error ('A test just failed: ' + checkCounter);
       }
    }
 
@@ -420,6 +426,7 @@ To run the tests:
       }
       console.log ('\nforArray: 1x,\ndaleArray: ' + ((result.aDale / result.aFor) + '').slice (0, 5) + 'x\n');
       console.log ('forObject: 1x,\ndaleObject: ' + ((result.oDale / result.oFor) + '').slice (0, 5) + 'x\ndaleObjectOwn: ' + ((result.oDaleObj / result.oFor) + '').slice (0, 5) + 'x\n');
+      if (dale.perf === true) dale.perf = result;
    }
 
    // Run the benchmark 5 times, with 2000 iterations per test function.
