@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v4.3.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v4.3.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 ## Installation
 
@@ -482,7 +482,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v4.3.0
+dale - v4.3.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -629,11 +629,11 @@ Now, `inputType` can be either an array, an object, or something else. If it is 
          if      (inputType === 'array')  {}
 ```
 
-If it is an object, we want to check whether this is an `arguments` object, which we want to treat like an array. To ascertain this we use `Object.prototype.toString` instead of `type` simply for performance purposes.
+If it is an object, we want to check whether this is an `arguments` object, which we want to treat like an array. To ascertain this we use `Object.prototype.toString` instead of `type` simply for performance purposes. If it is indeed an `arguments` object, we will convert it into an array.
 
 ```javascript
          else if (inputType === 'object') {
-            if (Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array';
+            if (Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array', input = [].slice.call (input);
          }
 ```
 

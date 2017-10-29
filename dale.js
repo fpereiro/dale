@@ -1,5 +1,5 @@
 /*
-dale - v4.3.0
+dale - v4.3.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -54,7 +54,7 @@ Please refer to readme.md to read the annotated source.
 
          if      (inputType === 'array')  {}
          else if (inputType === 'object') {
-            if (Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array';
+            if (Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array', input = [].slice.call (input);
          }
          else inputType = 'array', input = [input];
 
@@ -82,7 +82,7 @@ Please refer to readme.md to read the annotated source.
             else {
                if (result === undefined) continue;
                if (type (result) !== 'array') {
-                  console.log ('aValue returned by fun must be an array but instead is of type ' + type (result));
+                  console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
                   return;
                }
                output [result [0]] = result [1];
