@@ -1,5 +1,5 @@
 /*
-dale - v4.3.1
+dale - v4.3.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -273,6 +273,21 @@ To run the tests:
 
    console.log (output = dale.acc ([1, 2, 3], function (a, b) {return a * b}));
    check (output, 6);
+
+   console.log (output = dale.acc ([1], function (a, b) {return a + b}));
+   check (output, 1);
+
+   console.log (output = dale.acc ([2, 3], function (a, b) {return a + b}));
+   check (output, 5);
+
+   console.log (output = dale.acc ([], 0, function (a, b) {return a + b}));
+   check (output, 0);
+
+   console.log (output = dale.acc ([], 3, function (a, b) {return a + b}));
+   check (output, 3);
+
+   console.log (output = dale.acc ([1], 0, function (a, b) {return a + b}));
+   check (output, 1);
 
    console.log (output = dale.acc ([2, 3], 1, function (a, b) {return a + b}));
    check (output, 6);
