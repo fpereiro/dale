@@ -130,7 +130,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src=""></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/e3d6f036c62a743eddc26b8322f5ff028c23615c/dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
