@@ -31,7 +31,7 @@ Please refer to readme.md to read the annotated source.
       type = Object.prototype.toString.call (value).replace ('[object ', '').replace (']', '').toLowerCase ();
       if (type === 'array' || type === 'date' || type === 'null') return type;
       if (type === 'regexp') return 'regex';
-      if (objectType) return argdetect ? type : (teishi.t (value.callee) === 'function' ? 'arguments' : type);
+      if (objectType) return argdetect ? type : (type (value.callee) === 'function' ? 'arguments' : type);
       return 'object';
    }
 
