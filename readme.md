@@ -43,7 +43,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
    //    Element #11 is b
    //    Element #21 is c
 
-   dale.do (input, function (v, k) {
+   dale.go (input, function (v, k) {
       console.log ('Element #' + (k + 1) + ' is ' + v);
    });
 
@@ -58,7 +58,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
    ```javascript
    var argumentsTest = function (A, B, C) {
-      dale.do (arguments, function (v, k) {
+      dale.go (arguments, function (v, k) {
          console.log ('Element #' + (k + 1) + ' is ' + v);
       });
    }
@@ -106,7 +106,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
    var data = {
       key: 'value',
       key2: [1, 2, 3],
-      key3: dale.do ([1, 2, 3, 4], function (v) {
+      key3: dale.go ([1, 2, 3, 4], function (v) {
          return v * 10;
       })
    }
@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v4.3.3, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v5.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 ## Installation
 
@@ -130,20 +130,20 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@ac36810de20ee18d5d5077bd2ccb94628d621e58/dale.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
 
-dale is pure ES5 javascript and it should work in any version of node.js (tested in v0.8.0 and above). Browser compatibility is as follows:
+dale should work in any version of node.js (tested in v0.8.0 and above). Browser compatibility has been tested in the following browsers:
 
-- Chrome 15 (released 2011/10/25) and above.
-- Firefox 22 (released 2013/02/23) and above.
-- Safari 5.1 (released 2011/07/20) and above.
-- Internet Explorer 9 (released 2011/03/14) and above.
-- Microsoft Edge 14 (released 2016/02/19) and above.
-- Opera 11.6 (released 2011/12/07) and above.
-- Yandex 14.12 (released 2014/12/11) and above.
+- Google Chrome 15 and above.
+- Mozilla Firefox 3 and above.
+- Safari 4 and above.
+- Internet Explorer 6 and above.
+- Microsoft Edge 14 and above.
+- Opera 10.6 and above.
+- Yandex 14.12 and above.
 
 The author wishes to thank [Browserstack](https://browserstack.com) for providing tools to test cross-browser compatibility.
 
@@ -153,9 +153,9 @@ The author wishes to thank [Browserstack](https://browserstack.com) for providin
 
 dale consists of eight functions.
 
-### `dale.do`
+### `dale.go`
 
-`dale.do`, for vanilla iteration:
+`dale.go`, for vanilla iteration:
    - Takes an `input` and a `function`.
    - For each `element` in the `input`, it executes the `function`, passing the `element` and the `key` of the element as arguments and pushes the result into an `output` array.
    - Returns the `output` array.
@@ -165,31 +165,31 @@ The general idea of the function is quite similar to that of `Array.map`, but th
 
 ```javascript
 
-dale.do ([1, 2, 3], function (v) {return v + 1})
+dale.go ([1, 2, 3], function (v) {return v + 1})
 // returns [2, 3, 4]
 
-dale.do ({a: 1, b: 2, c: 3}, function (v) {return v + 1})
+dale.go ({a: 1, b: 2, c: 3}, function (v) {return v + 1})
 // returns [2, 3, 4]
 
-dale.do (1, function (v) {return v + 1})
+dale.go (1, function (v) {return v + 1})
 // returns [2]
 
-dale.do ({a: 1, b: 2, c: 3}, function (v, k) {return k + v})
+dale.go ({a: 1, b: 2, c: 3}, function (v, k) {return k + v})
 // returns ['a1', 'b2', 'c3']
 
 ```
 
-Notice that `dale.do` always returns an array with zero or more elements. It will only return an array of zero elements if its `input` is either an empty object, an empty array, or `undefined`.
+Notice that `dale.go` always returns an array with zero or more elements. It will only return an array of zero elements if its `input` is either an empty object, an empty array, or `undefined`.
 
 ```javascript
 
-dale.do ([], function (v, k) {return v + 1})
+dale.go ([], function (v, k) {return v + 1})
 // returns []
 
-dale.do ({}, function (v, k) {return v + 1})
+dale.go ({}, function (v, k) {return v + 1})
 // returns []
 
-dale.do (undefined, function (v, k) {return v + 1})
+dale.go (undefined, function (v, k) {return v + 1})
 // returns []
 
 ```
@@ -198,7 +198,7 @@ dale.do (undefined, function (v, k) {return v + 1})
 
 `dale.fil`, for iteration that filters out some results:
    - Takes an `input`, a `filterValue` and a `function`.
-   - Just like `dale.do`, it iterates over the `input`. If the result of this application is **not** equal to the `filterValue`, it is pushed onto the `output` array.
+   - Just like `dale.go`, it iterates over the `input`. If the result of this application is **not** equal to the `filterValue`, it is pushed onto the `output` array.
    - Returns the `output` array.
 
 ```javascript
@@ -245,7 +245,7 @@ Notice that `dale.keys` always returns an array with zero or more elements (each
 
 `dale.stop`, for stopping the iteration when finding a certain value:
    - Takes an `input`, a `stop value` and a `function`.
-   - Just like `dale.do`, it iterates over the `input`. Two things can happen:
+   - Just like `dale.go`, it iterates over the `input`. Two things can happen:
       - If the result of this application **is equal** to the `stop value`, the result is returned and no further iteration is performed.
       - If the result of this application **is not equal** to the `stop value`, the iteration continues.
    - If the `input` is iterated completely without finding the `stop value`, the result of the last application is returned.
@@ -309,7 +309,7 @@ The general idea of this function is quite similar to that of `Array.fold` and `
 
 ### `dale.obj`
 
-`dale.obj` is like `dale.do`, but it returns an object instead. This function:
+`dale.obj` is like `dale.go`, but it returns an object instead. This function:
    - Always returns an object (let's name it `output`).
    - Takes an `input`, an optional `base object`, and a `function`. If a `base object` is passed that is not an object, an error will be printed.
    - For each `element` in the `input`, it executes the `function`, passing the `element` and the `key` of the element. This function application generates a `result`.
@@ -366,7 +366,7 @@ console.log (base);
 
 ### `dale.times`
 
-`dale.times` is a function that generates an array of numbers - it is an indirect equivalent of a `while` loop, since it creates an array with consecutive integers `[1, 2, ..., n - 1, n]` which can then be passed to any of the other functions - most often, `dale.do`.
+`dale.times` is a function that generates an array of numbers - it is an indirect equivalent of a `while` loop, since it creates an array with consecutive integers `[1, 2, ..., n - 1, n]` which can then be passed to any of the other functions - most often, `dale.go`.
 
 The only required parameter is `times`, which can be either a positive integer or 0, and which states the length of the returned array.
 
@@ -374,7 +374,7 @@ The only required parameter is `times`, which can be either a positive integer o
 dale.times (3);
 // returns [1, 2, 3];
 
-dale.do (dale.times (3), function (v) {return v + 1});
+dale.go (dale.times (3), function (v) {return v + 1});
 // returns [2, 3, 4];
 ```
 
@@ -405,7 +405,7 @@ Here's how you can use `dale.times` within the context of other functions.
 
 ```javascript
    // returns [2, 3, 4]
-   dale.do (dale.times (3), function (v) {return v + 1}));
+   dale.go (dale.times (3), function (v) {return v + 1}));
 
    // returns [2, 4]
    dale.fil (dale.times (4), undefined, function (v) {
@@ -442,16 +442,20 @@ By default, dale functions iterate an object, it will only iterate the keys that
    dale.keys (o1); // returns ['foo']
    dale.keys (o2); // returns []
 
-   dale.do (o1, function (v) {return v});       // returns [42]
-   dale.do (o2, function (v) {return v});       // returns []
+   dale.go (o1, function (v) {return v});       // returns [42]
+   dale.go (o2, function (v) {return v});       // returns []
 ```
 
 If you want dale functions to iterate the inherited properties of an object, pass `true` as the last argument to the function.
 
 ```javascript
    dale.keys (o2, true)                         // returns ['foo']
-   dale.do (o2, function (v) {return v}, true); // returns [42]
+   dale.go (o2, function (v) {return v}, true); // returns [42]
 ```
+
+## Logging
+
+For compatibility with old browsers, dale defines and uses `dale.clog`, a function that will default to `console.log` and, if absent, will emit an `alert` statement instead.
 
 ## Performance
 
@@ -478,13 +482,13 @@ This means that dale takes roughly twice when iterating arrays and up to *ten ti
 
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 150 lines long.
+The complete source code is contained in `dale.js`. It is about 170 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-dale - v4.3.3
+dale - v5.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -515,10 +519,11 @@ This is the most succinct form I found to export an object containing all the pu
 
 The `type` function below is <del>copypasted</del> taken from [teishi](https://github.com/fpereiro/teishi). This is because I needed dale when writing teishi more than I needed teishi when writing dale. Thus, I decided that teishi should depend on dale. And I don't know if I can elegantly cross-reference both libraries, taking just what I need and avoiding circular dependencies.
 
-The purpose of `type` is to create an improved version of `typeof`. The improvements are two:
+The purpose of `type` is to create an improved version of `typeof`. The improvements are three:
 
 - Distinguish between types of numbers: `nan`, `infinity`, `integer` and `float` (all of which return `number` in `typeof`).
 - Distinguish between `array`, `date`, `null`, `regex` and `object` (all of which return `object` in `typeof`).
+- Fix quirks of old browsers.
 
 For the other types that `typeof` recognizes successfully, `type` will return the same value as `typeof`.
 
@@ -538,11 +543,20 @@ type (arguments)        // returns 'object'
 type (arguments, true)  // returns 'arguments'
 ```
 
+Before we define `type`, we define `argdetect`, a local variable that will be `true` in most javascript engines. In Internet Explorer 8 and below, however, it is not possible to get the type of the prototype of an `arguments` pseudo-array, hence the definition of this variable (which will be used in `type` and also once more later).
+
+The variable gets its value from a self-execution anonymous function. We need to do this since the `arguments` pseudo-array is only defined in the context of a function.
+
+```javascript
+   var argdetect = (function () {return Object.prototype.toString.call (arguments).match ('arguments')}) ();
+```
+
 Below is the function.
 
 ```javascript
    var type = function (value, objectType) {
       var type = typeof value;
+      if (type === 'function') return Object.prototype.toString.call (value).match (/regexp/i) ? 'regex' : 'function';
       if (type !== 'object' && type !== 'number') return type;
       if (value instanceof Array) return 'array';
       if (type === 'number') {
@@ -554,8 +568,38 @@ Below is the function.
       type = Object.prototype.toString.call (value).replace ('[object ', '').replace (']', '').toLowerCase ();
       if (type === 'array' || type === 'date' || type === 'null') return type;
       if (type === 'regexp') return 'regex';
-      if (objectType) return type;
+      if (objectType) return argdetect ? type : (teishi.t (value.callee) === 'function' ? 'arguments' : type);
       return 'object';
+   }
+```
+
+We define `dale.clog`, a function that invokes `console.log` where available and uses the browser's `alert` native method otherwise.
+
+```javascript
+   try {
+      dale.clog = console.log.bind (console);
+   }
+   catch (error) {
+```
+
+If we're inside the `catch`, it means that `console` might not be supported. It could also be the case that `bind` is not supported (which happens on browsers without full ES5 support.
+
+```javascript
+      dale.clog = function () {
+```
+
+We construct a string with the message to be printed.
+
+```javascript
+         var output = dale.go (arguments, function (v) {return v === undefined ? 'undefined' : v}).join (' ');
+```
+
+If `window.console` is available, we invoke it and print `output`; otherwise, we invoke `alert`. There's nothing else to do, so we close the function and the `catch` block.
+
+```javascript
+         window.console ? window.console.log (output) : alert (output);
+
+      }
    }
 ```
 
@@ -563,7 +607,7 @@ Below is the function.
 
 All eight functions of dale have many common elements. As a result, I've factored out the common elements in the function `make` below (short for `make function`).
 
-`make` function receives a `what` argument (can be any of `'do'`, `'obj'`, `'fil'`, `'stop'`, `'stopNot'`). It will then return the corresponding dale function.
+`make` function receives a `what` argument (can be any of `'go'`, `'obj'`, `'fil'`, `'stop'`, `'stopNot'`). It will then return the corresponding dale function.
 
 `dale.keys`, `dale.times` and `dale.acc` are wrappers around the other functions, so the function below is actually concerned with the other five functions.
 
@@ -572,13 +616,13 @@ All eight functions of dale have many common elements. As a result, I've factore
       return function (input, second, third, fourth) {
 ```
 
-For `dale.do`, the arguments received must be `input`, `fun` and an optional `inherit` flag, which must be `true`. We also set `output` to an empty array. Finally, we create a variable `index` to keep track of how many items we added to `output` array - this is strictly for performance purposes.
+For `dale.go`, the arguments received must be `input`, `fun` and an optional `inherit` flag, which must be `true`. We also set `output` to an empty array. Finally, we create a variable `index` to keep track of how many items we added to `output` array - this is strictly for performance purposes.
 
 ```javascript
-         if      (what === 'do')              var fun = second, inherit = third  === true, output = [], index = 0;
+         if      (what === 'go')              var fun = second, inherit = third  === true, output = [], index = 0;
 ```
 
-For `dale.fil`, the arguments received must be `input`, `second` (which will be the value that must be filtered out), `fun` and an optional `inherit` flag. As with `dale.do`, we set `output` to an empty array and `index` to `0`.
+For `dale.fil`, the arguments received must be `input`, `second` (which will be the value that must be filtered out), `fun` and an optional `inherit` flag. As with `dale.go`, we set `output` to an empty array and `index` to `0`.
 
 ```javascript
          else if (what === 'fil')             var fun = third,  inherit = fourth === true, output = [], index = 0;
@@ -608,7 +652,7 @@ If `fun` is not a function, we log an error and return `false`.
 
 ```javascript
          if (type (fun) !== 'function') {
-            console.log (((what === 'do' || (what === 'obj' && type (second) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
+            dale.clog (((what === 'go' || (what === 'obj' && type (second) !== 'object')) ? 'Second' : 'Third') + ' argument passed to dale.' + what + ' must be a function but instead is', fun, 'with type', type (fun));
             return false;
          }
 ```
@@ -633,9 +677,11 @@ Now, `inputType` can be either an array, an object, or something else. If it is 
 
 If it is an object, we want to check whether this is an `arguments` object, which we want to treat like an array. To ascertain this we use `Object.prototype.toString` instead of `type` simply for performance purposes. If it is indeed an `arguments` object, we will convert it into an array.
 
+Note that if `argdetect` is false (which will happen in IE 8 and below), we check whether `input.callee` is a function to ascertain whether this is an `arguments` object. This is a workaround since there seems to be no certain way to detect whether a certain object is an `arguments` object for these particular browsers.
+
 ```javascript
          else if (inputType === 'object') {
-            if (Object.prototype.toString.call (input) === '[object Arguments]') inputType = 'array', input = [].slice.call (input);
+            if (Object.prototype.toString.call (input) === '[object Arguments]' || (! argdetect && type (input.callee) === 'function')) inputType = 'array', input = [].slice.call (input);
          }
 ```
 
@@ -651,12 +697,25 @@ The loop to end all loops:
          for (var key in input) {
 ```
 
-At this point, `inputType` can only be `array` or `object`. If it is the former, we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
+At this point, `inputType` can only be `array` or `object`. If it is an array:
+
+```javascript
+            if (inputType === 'array') {
+```
+
+First of all, we ignore the key `indexOf`. This is because teishi's polyfill for `indexOf` (which only affects [browsers without ES5 support](https://caniuse.com/#feat=es5)) will be iterated as a property of the array, unless we explicitly prevent it. Since browsers without ES5 support don't allow defining methods or properties that are not iterable, this workaround is necessary.
+
+```javascript
+               if (key === 'indexOf') continue;
+```
+
+We apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
 
 This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
 
-```javascript
-            if (inputType === 'array') key = parseInt (key);
+```
+               key = parseInt (key);
+            }
 ```
 
 If we're in the block below, `inputType` is `object`.
@@ -684,10 +743,10 @@ Notice that the `fun` receives the `value` as the first argument and the `key` a
             var result = fun (input [key], key);
 ```
 
-For the case of `dale.do`, or the case of `dale.fil` when `result` is not equal to `second`, we append `result` into `output`. As we do this, we increment `index` (which is only defined for these two cases).
+For the case of `dale.go`, or the case of `dale.fil` when `result` is not equal to `second`, we append `result` into `output`. As we do this, we increment `index` (which is only defined for these two cases).
 
 ```javascript
-            if      (what === 'do')   output [index++] = result;
+            if      (what === 'go')   output [index++] = result;
             else if (what === 'fil') {
                if (result !== second) output [index++] = result;
             }
@@ -739,15 +798,15 @@ We close the loop and return `output`.
 
 ### The eight functions
 
-We create each of the dale functions. `dale.keys` is simply a lambda function that passes `input` and `inherit` to `dale.do`, using a `fun` that only returns its `key`.
+We create each of the dale functions. `dale.keys` is simply a lambda function that passes `input` and `inherit` to `dale.go`, using a `fun` that only returns its `key`.
 
 ```javascript
-   dale.do      = make ('do');
+   dale.go      = make ('go');
    dale.fil     = make ('fil');
    dale.obj     = make ('obj');
    dale.stop    = make ('stop');
    dale.stopNot = make ('stopNot');
-   dale.keys      = function (input, inherit) {return dale.do (input, function (v, k) {return k}, inherit)};
+   dale.keys      = function (input, inherit) {return dale.go (input, function (v, k) {return k}, inherit)};
 ```
 
 `dale.times` is meant as a replacement for while loops where we iterate through integers. This function takes `times` (the number of iterations), an optional `start` parameter to use as the first element of the array and an optional `step` parameter to specify the increment used.
@@ -767,17 +826,17 @@ If any of these conditions is violated, we print an error message and return `un
 ```javascript
       if (steps === 0) return [];
       if (type (steps) !== 'integer' || steps < 0) {
-         console.log ('steps must be a positive integer or zero.');
+         dale.clog ('steps must be a positive integer or zero.');
          return;
       }
       if (start === undefined) start = 1;
       else if (type (start) !== 'integer' && type (start) !== 'float') {
-         console.log ('start must be an integer or float.');
+         dale.clog ('start must be an integer or float.');
          return;
       }
       if (step  === undefined) step  = 1;
       else if (type (step) !== 'integer'  && type (step)  !== 'float') {
-         console.log ('step must be an integer or float.');
+         dale.clog ('step must be an integer or float.');
          return;
       }
 ```
@@ -811,7 +870,7 @@ We return `output` and close the function.
 
 `dale.acc` is a function for *accumulating* results into one, using a function that takes an accumulator (result of previous operations) and a new item on each iteration. It provides the functionality of the functional operations commonly named `reduce` and `fold`.
 
-While this function could be possibly inserted into the main function that implements most of the other functions, I felt that its particularities would make the main function more complex and slower, so I opted to write it as a standalone function that calls `dale.do` in its inner loop.
+While this function could be possibly inserted into the main function that implements most of the other functions, I felt that its particularities would make the main function more complex and slower, so I opted to write it as a standalone function that calls `dale.go` in its inner loop.
 
 This function takes up to four arguments.
 
@@ -839,7 +898,7 @@ We check whether `fun` is of the right type. Otherwise, we print an error and re
 
 ```javascript
       if (type (fun) !== 'function') {
-         console.log ('fun must be a function but instead is of type', type (fun));
+         dale.clog ('fun must be a function but instead is of type', type (fun));
          return false;
       }
 ```
@@ -850,10 +909,10 @@ We initialize a variable `first` that will tell us whether we are in the first e
       var first = true;
 ```
 
-We invoke `dale.do` on our `input` and a function.
+We invoke `dale.go` on our `input` and a function.
 
 ```javascript
-      dale.do (input, function (v, k) {
+      dale.go (input, function (v, k) {
 ```
 
 If no accumulator was passed and we're iterating the first element of `input`, we set `first` to `false` (to mark that we have already processed it) and then we set `acc` to the value of this element.
@@ -871,7 +930,7 @@ In every other case, we set `acc` to the value returned by `fun` when it is pass
          acc = fun (acc, v);
 ```
 
-We close the inner loop. Notice we pass the `inherit` flag to `dale.do`.
+We close the inner loop. Notice we pass the `inherit` flag to `dale.go`.
 
 ```javascript
       }, inherit);

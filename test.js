@@ -32,7 +32,8 @@ To run the tests:
       checkCounter++;
       if (JSON.stringify (a) !== JSON.stringify (b)) {
          dale.perf = false;
-         console.log ('A test just failed!', checkCounter);
+         if (isNode) dale.clog ('A test just failed!', checkCounter);
+         else        alert     ('A test just failed!', checkCounter);
          throw new Error ('A test just failed: ' + checkCounter);
       }
    }
@@ -40,7 +41,7 @@ To run the tests:
    var input = ['a', 'b', 'c'];
 
    for (var i in input) {
-      console.log ('Element #' + (i + 1) + ' is ' + input [i]);
+      dale.clog ('Element #' + (i + 1) + ' is ' + input [i]);
    }
 
    // This loop will print:
@@ -48,8 +49,8 @@ To run the tests:
    //    Element #11 is b
    //    Element #21 is c
 
-   var output = dale.do (input, function (v, k) {
-      console.log ('Element #' + (k + 1) + ' is ' + v);
+   var output = dale.go (input, function (v, k) {
+      dale.clog ('Element #' + (k + 1) + ' is ' + v);
       return k;
    });
 
@@ -61,8 +62,8 @@ To run the tests:
    //    Element #3 is c
 
    var argumentsTest = function (A, B, C) {
-      return dale.do (arguments, function (v, k) {
-         console.log ('Element #' + (k + 1) + ' is ' + v);
+      return dale.go (arguments, function (v, k) {
+         dale.clog ('Element #' + (k + 1) + ' is ' + v);
          return k;
       });
    }
@@ -77,8 +78,8 @@ To run the tests:
    check (output, [0, 1, 2]);
 
    var singleParseKeyTest = function () {
-      return dale.do ('blabla', function (v, k) {
-         console.log ('Element #' + (k + 1) + ' is ' + v);
+      return dale.go ('blabla', function (v, k) {
+         dale.clog ('Element #' + (k + 1) + ' is ' + v);
          return k + 1;
       });
    }
@@ -94,7 +95,7 @@ To run the tests:
       else output.push (input [i] * 10);
    }
 
-   console.log (output);
+   dale.clog (output);
 
    // output will be [10, 20]
 
@@ -107,7 +108,7 @@ To run the tests:
       else output.push (v * 10);
    });
 
-   console.log (output);
+   dale.clog (output);
 
    // output will be [10, 20]
 
@@ -116,45 +117,45 @@ To run the tests:
    var data = {
       key: 'value',
       key2: [1, 2, 3],
-      key3: dale.do ([1, 2, 3, 4], function (v) {
+      key3: dale.go ([1, 2, 3, 4], function (v) {
          return v * 10;
       })
    }
 
-   console.log (data.key3);
+   dale.clog (data.key3);
 
    // data.key3 will be equal to [10, 20, 30, 40]
    check (data.key3, [10, 20, 30, 40]);
 
-   console.log (output = dale.do ([1, 2, 3], function (v) {return v + 1}));
+   dale.clog (output = dale.go ([1, 2, 3], function (v) {return v + 1}));
    // returns [2, 3, 4]
    check (output, [2, 3, 4]);
 
-   console.log (output = dale.do ({a: 1, b: 2, c: 3}, function (v) {return v + 1}));
+   dale.clog (output = dale.go ({a: 1, b: 2, c: 3}, function (v) {return v + 1}));
    // returns [2, 3, 4]
    check (output, [2, 3, 4]);
 
-   console.log (output = dale.do (1, function (v) {return v + 1}));
+   dale.clog (output = dale.go (1, function (v) {return v + 1}));
    // returns [2]
    check (output, [2]);
 
-   console.log (output = dale.do ({a: 1, b: 2, c: 3}, function (v, k) {return k + v}));
+   dale.clog (output = dale.go ({a: 1, b: 2, c: 3}, function (v, k) {return k + v}));
    // returns ['a1', 'b2', 'c3']
    check (output, ['a1', 'b2', 'c3']);
 
-   console.log (output = dale.do ([], function (v, k) {return v + 1}));
+   dale.clog (output = dale.go ([], function (v, k) {return v + 1}));
    // returns []
    check (output, []);
 
-   console.log (output = dale.do ({}, function (v, k) {return v + 1}));
+   dale.clog (output = dale.go ({}, function (v, k) {return v + 1}));
    // returns []
    check (output, []);
 
-   console.log (output = dale.do (undefined, function (v, k) {return v + 1}));
+   dale.clog (output = dale.go (undefined, function (v, k) {return v + 1}));
    // returns []
    check (output, []);
 
-   console.log (output = dale.fil ([{id: 1}, {id: 8}, {id: 14}], undefined, function (v) {
+   dale.clog (output = dale.fil ([{id: 1}, {id: 8}, {id: 14}], undefined, function (v) {
       if (v.id < 10) return v;
    }));
 
@@ -167,14 +168,14 @@ To run the tests:
       {name: 'Helmut', active: true}
    ];
 
-   console.log (output = dale.fil (members, undefined, function (v) {
+   dale.clog (output = dale.fil (members, undefined, function (v) {
       if (v.active) return {name: v.name};
    }));
 
    // returns [{name: 'Pepe'}, {name: 'Helmut'}]
    check (output, [{name: 'Pepe'}, {name: 'Helmut'}]);
 
-   console.log (output = dale.keys ({'foo': true, 'bar': false, 'hip': undefined}));
+   dale.clog (output = dale.keys ({'foo': true, 'bar': false, 'hip': undefined}));
 
    // returns ['foo', 'bar', 'hip']
    check (output, ['foo', 'bar', 'hip']);
@@ -184,13 +185,13 @@ To run the tests:
       else return false;
    }
 
-   console.log (output = dale.stop ([2, 3, 4],       false, isNumber));    // returns true
+   dale.clog (output = dale.stop ([2, 3, 4],       false, isNumber));    // returns true
    check (output, true);
-   console.log (output = dale.stop ([2, 'trois', 4], false, isNumber));    // returns false
+   dale.clog (output = dale.stop ([2, 'trois', 4], false, isNumber));    // returns false
    check (output, false);
-   console.log (output = dale.stop ([],              true,  isNumber));    // returns undefined
+   dale.clog (output = dale.stop ([],              true,  isNumber));    // returns undefined
    check (output, undefined);
-   console.log (output = dale.stop (undefined,       true,  isNumber));    // returns undefined
+   dale.clog (output = dale.stop (undefined,       true,  isNumber));    // returns undefined
    check (output, undefined);
 
    var returnIfNotNumber = function (value) {
@@ -198,11 +199,11 @@ To run the tests:
       else return value;
    }
 
-   console.log (output = dale.stopNot ([2, 3, 4],       true, returnIfNotNumber));    // returns true
+   dale.clog (output = dale.stopNot ([2, 3, 4],       true, returnIfNotNumber));    // returns true
    check (output, true);
-   console.log (output = dale.stopNot ([2, 'trois', 4], true, returnIfNotNumber));    // returns 'trois'
+   dale.clog (output = dale.stopNot ([2, 'trois', 4], true, returnIfNotNumber));    // returns 'trois'
    check (output, 'trois');
-   console.log (output = dale.stopNot ([],              true, returnIfNotNumber));    // returns undefined
+   dale.clog (output = dale.stopNot ([],              true, returnIfNotNumber));    // returns undefined
    check (output, undefined);
 
 
@@ -212,7 +213,7 @@ To run the tests:
       {name: 'Helmut', age: 42, active: true}
    ];
 
-   console.log (output = dale.obj (members2, function (v) {
+   dale.clog (output = dale.obj (members2, function (v) {
       if (! v.active) return;
       return [v.name, v.age];
    }));
@@ -224,7 +225,7 @@ To run the tests:
       Sigfrid: 24
    }
 
-   console.log (output = dale.obj (members2, base, function (v) {
+   dale.clog (output = dale.obj (members2, base, function (v) {
       if (! v.active) return;
       return [v.name, v.age];
    }));
@@ -233,7 +234,7 @@ To run the tests:
 
    check (base, {Fritz: 46, Sigfrid: 24, Pepe: 68, Helmut: 42});
 
-   console.log (output = dale.obj (members2, function (v) {
+   dale.clog (output = dale.obj (members2, function (v) {
       return /thisisinvalid/
    }));
 
@@ -242,115 +243,123 @@ To run the tests:
    dale.obj ([], /invalidfun/);
    dale.obj ([], {}, /invalidfun/);
 
-   console.log (output = dale.obj ([], function (v) {
+   dale.clog (output = dale.obj ([], function (v) {
       return [v, v];
    }));
 
    check (output, {});
 
    var o1 = {foo: 42}
+   if (! Object.create) {
+      Object.create = function (o) {
+         var f = function () {};
+         f.prototype = o;
+         return new f ();
+      }
+   }
    var o2 = Object.create (o1); // o2 inherits from o1
 
-   console.log (output = dale.keys (o1));       // returns ['foo']
+   dale.clog (output = dale.keys (o1));       // returns ['foo']
    check (output, ['foo']);
-   console.log (output = dale.keys (o2));       // returns []
+   dale.clog (output = dale.keys (o2));       // returns []
    check (output, []);
-   console.log (output = dale.keys (o2, true)); // returns ['foo']
+   dale.clog (output = dale.keys (o2, true)); // returns ['foo']
    check (output, ['foo']);
 
-   console.log (output = dale.do (o1, function (v) {return v}));       // returns [42]
+   dale.clog (output = dale.go (o1, function (v) {return v}));       // returns [42]
    check (output, [42]);
-   console.log (output = dale.do (o2, function (v) {return v}));       // returns []
+   dale.clog (output = dale.go (o2, function (v) {return v}));       // returns []
    check (output, []);
-   console.log (output = dale.do (o2, function (v) {return v}, true)); // returns [42]
+   dale.clog (output = dale.go (o2, function (v) {return v}, true)); // returns [42]
    check (output, [42]);
 
-   console.log (output = dale.acc ([1, 2, 3], function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ([1, 2, 3], function (a, b) {return a + b}));
    check (output, 6);
 
-   console.log (output = dale.acc ({x: 1, y: 2, z: 3}, function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ({x: 1, y: 2, z: 3}, function (a, b) {return a + b}));
    check (output, 6);
 
-   console.log (output = dale.acc ([1, 2, 3], function (a, b) {return a * b}));
+   dale.clog (output = dale.acc ([1, 2, 3], function (a, b) {return a * b}));
    check (output, 6);
 
-   console.log (output = dale.acc ([1], function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ([1], function (a, b) {return a + b}));
    check (output, 1);
 
-   console.log (output = dale.acc ([2, 3], function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ([2, 3], function (a, b) {return a + b}));
    check (output, 5);
 
-   console.log (output = dale.acc ([], 0, function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ([], 0, function (a, b) {return a + b}));
    check (output, 0);
 
-   console.log (output = dale.acc ([], 3, function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ([], 3, function (a, b) {return a + b}));
    check (output, 3);
 
-   console.log (output = dale.acc ([1], 0, function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ([1], 0, function (a, b) {return a + b}));
    check (output, 1);
 
-   console.log (output = dale.acc ([2, 3], 1, function (a, b) {return a + b}));
+   dale.clog (output = dale.acc ([2, 3], 1, function (a, b) {return a + b}));
    check (output, 6);
 
-   console.log (output = dale.acc (['A', 'B', 'C'], function (a, b) {return a + b}));
+   dale.clog (output = dale.acc (['A', 'B', 'C'], function (a, b) {return a + b}));
    check (output, 'ABC');
 
-   console.log (output = dale.acc ([1, 2, 3], /notafunction/));
+   dale.clog (output = dale.acc ([1, 2, 3], /notafunction/));
    check (output, false);
 
-   console.log (output = dale.do (dale.times (3), function (v) {return v + 1}));
+   dale.clog (output = dale.go (dale.times (3), function (v) {return v + 1}));
    check (output, [2, 3, 4]); // returns [2, 3, 4]
 
-   console.log (output = dale.fil (dale.times (4), undefined, function (v) {if (v % 2 === 0) return v;}));
+   dale.clog (output = dale.fil (dale.times (4), undefined, function (v) {if (v % 2 === 0) return v;}));
    check (output, [2, 4]); // returns [2, 4]
 
-   console.log (output = dale.obj (dale.times (2), function (v, k) {
+   dale.clog (output = dale.obj (dale.times (2), function (v, k) {
       if (v % 2 === 0) return [k, v];
    }));
    check (output, {1: 2}); // returns {1: 2}
 
-   console.log (output = dale.stop (dale.times (2), false, function (v, k) {
+   dale.clog (output = dale.stop (dale.times (2), false, function (v, k) {
       return v % 3 !== 0;
    }));
    check (output, true); // output will be true
 
-   console.log (output = dale.stop (dale.times (4), false, function (v, k) {
+   dale.clog (output = dale.stop (dale.times (4), false, function (v, k) {
       return v % 3 !== 0;
    }));
    check (output, false); // output will be false
 
-   console.log (output = dale.keys (dale.times (4)));
+   dale.clog (output = dale.keys (dale.times (4)));
    check (output, [0, 1, 2, 3]); // returns [0, 1, 2, 3]
 
-   console.log (output = dale.do (dale.times (4, 0, 2), function (v) {return v}));
+   dale.clog (output = dale.go (dale.times (4, 0, 2), function (v) {return v}));
    check (output, [0, 2, 4, 6]); // returns [0, 2, 4, 6]
 
-   console.log (output = dale.do (1, function (v) {return v + 1}));
+   dale.clog (output = dale.go (1, function (v) {return v + 1}));
    check (output, [2]); // returns [2]
 
-   console.log (output = dale.fil (1, 3, function (v) {return v + 1}));
+   dale.clog (output = dale.fil (1, 3, function (v) {return v + 1}));
    check (output, [2]); // returns [2]
 
-   console.log (output = dale.stop (1, 1, function (v) {return v}));
+   dale.clog (output = dale.stop (1, 1, function (v) {return v}));
    check (output, 1); // returns 1
 
-   console.log (output = dale.stopNot (1, 1, function (v) {return v}));
+   dale.clog (output = dale.stopNot (1, 1, function (v) {return v}));
    check (output, 1); // returns 1
 
-   console.log (output = dale.obj (1, function (v) {return [v, v]}));
+   dale.clog (output = dale.obj (1, function (v) {return [v, v]}));
    check (output, {1: 1}); // returns {1: 1}
 
-   console.log (output = dale.times (0));
+   dale.clog (output = dale.times (0));
    check (output, []); // returns []
 
-   console.log (output = dale.acc (dale.times (5), function (a, b) {return a + b}));
+   dale.clog (output = dale.acc (dale.times (5), function (a, b) {return a + b}));
    check (output, 15); // returns 15
 
    check (undefined, dale.times (0.5));
    check (undefined, dale.times (1, /a/));
    check (undefined, dale.times (1, 1, /a/));
 
-   console.log ('\nAll tests passed successfully!\n');
+   if (isNode) dale.clog ('\nAll tests passed successfully!\n');
+   else        alert ('All tests passed successfully!');
 
    // *** PERFORMANCE ***
 
@@ -395,9 +404,9 @@ To run the tests:
    }
 
    function daleObject (hasOwn) {
-      return dale.do (object, function (user, id) {
+      return dale.go (object, function (user, id) {
          var User = [['id', id]];
-         dale.do (user, function (value, key) {
+         dale.go (user, function (value, key) {
             User.push ([key, value]);
           }, hasOwn);
          return User;
@@ -410,14 +419,14 @@ To run the tests:
 
    var benchmark = function (fun, times) {
       var oTimes = times;
-      var start = Date.now ();
+      var start = new Date ().getTime ();
       // I briefly doubted whether to do a for loop or a dale invocation here, until I weaseled out with a while loop.
       while (times) {
          fun ();
          times--;
       }
-      var end = Date.now ();
-      console.log ((fun + '').match (/^function [A-Za-z0-9_]+/) [0], '\t', 'executed', oTimes, 'times in', '\t', end - start, 'milliseconds');
+      var end = new Date ().getTime ();
+      dale.clog ((fun + '').match (/^function [A-Za-z0-9_]+/) [0], '\t', 'executed', oTimes, 'times in', '\t', end - start, 'milliseconds');
       return end - start;
    }
 
@@ -432,15 +441,15 @@ To run the tests:
       while (times) {
          result.aFor     += benchmark (forArray, iterations);
          result.aDale    += benchmark (daleArray, iterations);
-         console.log ('----------------------------');
+         dale.clog ('----------------------------');
          result.oFor     += benchmark (forObject, iterations);
          result.oDale    += benchmark (daleObject, iterations);
          result.oDaleObj += benchmark (daleObjectOwn, iterations);
-         console.log ('----------------------------');
+         dale.clog ('----------------------------');
          times--;
       }
-      console.log ('\nforArray: 1x,\ndaleArray: ' + ((result.aDale / result.aFor) + '').slice (0, 5) + 'x\n');
-      console.log ('forObject: 1x,\ndaleObject: ' + ((result.oDale / result.oFor) + '').slice (0, 5) + 'x\ndaleObjectOwn: ' + ((result.oDaleObj / result.oFor) + '').slice (0, 5) + 'x\n');
+      dale.clog ('\nforArray: 1x,\ndaleArray: ' + ((result.aDale / result.aFor) + '').slice (0, 5) + 'x\n');
+      dale.clog ('forObject: 1x,\ndaleObject: ' + ((result.oDale / result.oFor) + '').slice (0, 5) + 'x\ndaleObjectOwn: ' + ((result.oDaleObj / result.oFor) + '').slice (0, 5) + 'x\n');
       if (dale.perf === true) dale.perf = result;
    }
 
