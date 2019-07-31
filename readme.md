@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v5.0.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v5.0.2, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 ## Installation
 
@@ -488,7 +488,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v5.0.1
+dale - v5.0.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -565,8 +565,9 @@ Below is the function.
          else if (value % 1 === 0)    return 'integer';
          else                         return 'float';
       }
+      if (value === null) return 'null';
       type = Object.prototype.toString.call (value).replace ('[object ', '').replace (']', '').toLowerCase ();
-      if (type === 'array' || type === 'date' || type === 'null') return type;
+      if (type === 'array' || type === 'date') return type;
       if (type === 'regexp') return 'regex';
       if (objectType) return argdetect ? type : (type (value.callee) === 'function' ? 'arguments' : type);
       return 'object';

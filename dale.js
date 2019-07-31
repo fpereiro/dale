@@ -1,5 +1,5 @@
 /*
-dale - v5.0.1
+dale - v5.0.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -28,8 +28,9 @@ Please refer to readme.md to read the annotated source.
          else if (value % 1 === 0)    return 'integer';
          else                         return 'float';
       }
+      if (value === null) return 'null';
       type = Object.prototype.toString.call (value).replace ('[object ', '').replace (']', '').toLowerCase ();
-      if (type === 'array' || type === 'date' || type === 'null') return type;
+      if (type === 'array' || type === 'date') return type;
       if (type === 'regexp') return 'regex';
       if (objectType) return argdetect ? type : (type (value.callee) === 'function' ? 'arguments' : type);
       return 'object';
