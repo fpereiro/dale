@@ -117,7 +117,9 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v5.0.2, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v5.0.3, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+
+dale is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
 ## Installation
 
@@ -130,7 +132,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@9fe30369a2acef87ed062131c8634d858b8f3143/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@ /dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
@@ -488,7 +490,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v5.0.2
+dale - v5.0.3
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -498,7 +500,7 @@ Please refer to readme.md to read the annotated source.
 
 ### Setup
 
-We wrap the entire file in a self-executing anonymous function. This practice is commonly named [the javascript module pattern](http://yuiblog.com/blog/2007/06/12/module-pattern/). The purpose of it is to wrap our code in a closure and hence avoid making the local variables we define here to be available outside of this module. A cursory test indicates that local variables exceed the scope of a file in the browser, but not in node.js. Globals exceed their scope despite this pattern - but we won't be using them.
+We wrap the entire file in a self-executing anonymous function. This practice is commonly named [the javascript module pattern](http://yuiblog.com/blog/2007/06/12/module-pattern/). The purpose of it is to wrap our code in a closure and hence avoid making the local variables we define here to be available outside of this module. A cursory test indicates that local variables exceed the scope of a script in the browser, but not in node.js. This means that this pattern is useful only on the browser.
 
 ```javascript
 (function () {
@@ -510,7 +512,7 @@ Since this file must run both in the browser and in node.js, we define a variabl
    var isNode = typeof exports === 'object';
 ```
 
-This is the most succinct form I found to export an object containing all the public members (functions and constants) of a javascript module.
+This is the most succinct form I found to export an object containing all the public members (functions and constants) of a javascript module. Note that, in the browser, we use the global variable `dale` to export the library.
 
 ```javascript
    if (isNode) var dale = exports;
