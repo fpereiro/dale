@@ -354,9 +354,9 @@ To run the tests:
    dale.clog (output = dale.acc (dale.times (5), function (a, b) {return a + b}));
    check (output, 15); // returns 15
 
-   check (undefined, dale.times (0.5));
-   check (undefined, dale.times (1, /a/));
-   check (undefined, dale.times (1, 1, /a/));
+   check (false, dale.times (0.5));
+   check (false, dale.times (1, /a/));
+   check (false, dale.times (1, 1, /a/));
 
    dale.clog (output = dale.obj (['a', undefined, 'c'], function (v, k) {
       return [k, v];

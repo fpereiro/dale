@@ -162,6 +162,7 @@ dale consists of eight functions.
    - For each `element` in the `input`, it executes the `function`, passing the `element` and the `key` of the element as arguments and pushes the result into an `output` array.
    - Returns the `output` array.
    - Returns an array where each element is the result of each `function` application.
+   - If `function` is not a function, an error will be printed and `dale.go` will return `false`.
 
 The general idea of the function is quite similar to that of `Array.map`, but the function accepts inputs of any type.
 
@@ -202,6 +203,7 @@ dale.go (undefined, function (v, k) {return v + 1})
    - Takes an `input`, a `filterValue` and a `function`.
    - Just like `dale.go`, it iterates over the `input`. If the result of this application is **not** equal to the `filterValue`, it is pushed onto the `output` array.
    - Returns the `output` array.
+   - If `function` is not a function, an error will be printed and `dale.fil` will return `false`.
 
 ```javascript
 
@@ -231,6 +233,7 @@ Notice that `dale.fil` always returns an array with zero or more elements.
    - Takes an `input`.
    - Applies the following `function` to the input: `function (v, k) {return k}` and pushes each result to the `output` array.
    - Returns the `output` array.
+   - If `function` is not a function, an error will be printed and `dale.keys` will return `false`.
 
 The general idea of this function is quite similar to that of `Object.keys`, but the function accepts inputs of any type.
 
@@ -252,6 +255,7 @@ Notice that `dale.keys` always returns an array with zero or more elements (each
       - If the result of this application **is not equal** to the `stop value`, the iteration continues.
    - If the `input` is iterated completely without finding the `stop value`, the result of the last application is returned.
    - If the `input` has zero elements (because it is an empty object, empty array, or `undefined`, `dale.stop` returns `undefined`.
+   - If `function` is not a function, an error will be printed and `dale.stop` will return `false`.
 
 This function, just like `dale.stopNot` below, has two qualities that distinguish it from the other functions:
 - It can stop the iteration before reaching the end of the `input`.
@@ -293,7 +297,8 @@ dale.stopNot ([],              true, returnIfNotNumber)    // returns undefined
 `dale.acc` is a function for *accumulating* results into one and then returning it. This function:
    - Takes an `input` as its first argument - it can be of any type.
    - Takes an optional `firstValue`, which can be used as the initial value for the accumulator. Otherwise, the first element of `input` will be considered as the `firstValue`. Notice that the former variant is akin to `fold`, whereas the latter is akin to `reduce`.
-   - Takes a `fun`, the function that accumulates two values.
+   - Takes a `function`, the function that accumulates two values.
+   - If `function` is not a function, an error will be printed and `dale.acc` will return `false`.
 
 The general idea of this function is quite similar to that of `Array.fold` and `Array.reduce`, but the function accepts inputs of any type.
 
@@ -318,6 +323,7 @@ The general idea of this function is quite similar to that of `Array.fold` and `
    - If `result` is an array with two elements (`result [0]` and `result [1]`), the key `result [0]` will be set to `result [1]` in either the `base object` or a new object (if no `base object` is provided).
    - If `result` is `undefined`, `output` will remain unchanged.
    - If `result` is neither an array nor `undefined`, an error will be printed and `dale.obj` will return `undefined`.
+   - If `function` is not a function, an error will be printed and `dale.obj` will return `false`.
 
 ```javascript
 
@@ -432,6 +438,8 @@ Here's how you can use `dale.times` within the context of other functions.
    // returns 15
    dale.acc (dale.times (5), function (a, b) {return a + b});
 ```
+
+If `dale.times` receives invalid inputs, it will print an error message and return `false`.
 
 ## Inherited properties
 
@@ -831,23 +839,23 @@ We validate and initialize the inputs:
 - `start` is either undefined or an integer or a float. If undefined, we set it to 1.
 - `step` is either undefined or an integer or a float. If undefined, we set it to 1.
 
-If any of these conditions is violated, we print an error message and return `undefined.`
+If any of these conditions is violated, we print an error message and return `false`.
 
 ```javascript
       if (steps === 0) return [];
       if (type (steps) !== 'integer' || steps < 0) {
          dale.clog ('steps must be a positive integer or zero.');
-         return;
+         return false;
       }
       if (start === undefined) start = 1;
       else if (type (start) !== 'integer' && type (start) !== 'float') {
          dale.clog ('start must be an integer or float.');
-         return;
+         return false;
       }
       if (step  === undefined) step  = 1;
       else if (type (step) !== 'integer'  && type (step)  !== 'float') {
          dale.clog ('step must be an integer or float.');
-         return;
+         return false;
       }
 ```
 

@@ -119,17 +119,17 @@ Please refer to readme.md to read the annotated source.
       if (steps === 0) return [];
       if (type (steps) !== 'integer' || steps < 0) {
          dale.clog ('steps must be a positive integer or zero.');
-         return;
+         return false;
       }
       if (start === undefined) start = 1;
       else if (type (start) !== 'integer' && type (start) !== 'float') {
          dale.clog ('start must be an integer or float.');
-         return;
+         return false;
       }
       if (step  === undefined) step  = 1;
       else if (type (step) !== 'integer'  && type (step)  !== 'float') {
          dale.clog ('step must be an integer or float.');
-         return;
+         return false;
       }
 
       var output = [start];
