@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v5.0.3, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v5.0.4, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 dale is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -132,7 +132,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@aad320880d95ca9aea84a6cf30f95949223b3f12/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@/dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
@@ -465,32 +465,34 @@ dale is necessarily slower than a `for` loop, since it consists of a functional 
 
 The benchmark I used is included in `example.js` - to execute it just run that file, or open it in a browser. The benchmark attempts to make many iterations without almost any computation, to focus on the raw speed of the underlying loop (be it a real loop or dale's layer on top of it).
 
-Testing different versions of node.js, Chrome and Firefox, here's some (very approximate) performance factors:
+Testing different versions of node.js and the supported browsers, here's some (very approximate) performance factors:
 
 ```
 Iterating arrays:
 
 for:  1x
-dale: 1.5x-2.5x
+dale: 2x-9x
 
 Iterating objects:
 
 for:                                    1x
-dale:                                   4.5x-10x
-dale, without the hasOwnProperty check: 3.5x-8x
+dale:                                   2x-10x
+dale, without the hasOwnProperty check: 2x-8x
 ```
 
 This means that dale takes roughly twice when iterating arrays and up to *ten times* more time when iterating objects. Although significant, I believe this is a worthy price to pay for the ease of expression and the facilities provided by dale - especially since many of these facilities have to be inserted into the loops anyway, hence bringing down the speed of a raw `for` loop.
 
+The modern the javascript engine, the better will dale's performance be relative to that of a `for` loop.
+
 ## Source code
 
-The complete source code is contained in `dale.js`. It is about 170 lines long.
+The complete source code is contained in `dale.js`. It is about 160 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-dale - v5.0.3
+dale - v5.0.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -666,84 +668,12 @@ For any dale function, if the `input` is `undefined`, we return the default `out
          if (input === undefined) return output;
 ```
 
-We save the type of `input` in a local variable `inputType`. This memoization is very important for optimization purposes, since `inputType` will be used from within the inner loop of the function.
+We define a local function `inner`, which we'll execute for each item of `output` we are iterating. This function takes a single argument, `result`, which will be the result of applying each element of `output` to `fun`.
+
+If `inner` returns `true`, this will mean that the iteration process (defined below) will be stopped.
 
 ```javascript
-         var inputType = type (input);
-```
-
-Now, `inputType` can be either an array, an object, or something else. If it is an array, we don't want to do anything.
-
-```javascript
-         if      (inputType === 'array')  {}
-```
-
-If it is an object, we want to check whether this is an `arguments` object, which we want to treat like an array. To ascertain this we use `Object.prototype.toString` instead of `type` simply for performance purposes. If it is indeed an `arguments` object, we will convert it into an array.
-
-Note that if `argdetect` is false (which will happen in IE 8 and below), we check whether `input.callee` is a function to ascertain whether this is an `arguments` object. This is a workaround since there seems to be no certain way to detect whether a certain object is an `arguments` object for these particular browsers.
-
-```javascript
-         else if (inputType === 'object') {
-            if (Object.prototype.toString.call (input) === '[object Arguments]' || (! argdetect && type (input.callee) === 'function')) inputType = 'array', input = [].slice.call (input);
-         }
-```
-
-If its neither, we transform `input` into `[input]` (so that we consider it as an array with one element) and set `inputType` to `array`.
-
-```javascript
-         else inputType = 'array', input = [input];
-```
-
-The loop to end all loops:
-
-```javascript
-         for (var key in input) {
-```
-
-At this point, `inputType` can only be `array` or `object`. If it is an array:
-
-```javascript
-            if (inputType === 'array') {
-```
-
-First of all, we ignore the key `indexOf`. This is because teishi's polyfill for `indexOf` (which only affects [browsers without ES5 support](https://caniuse.com/#feat=es5)) will be iterated as a property of the array, unless we explicitly prevent it. Since browsers without ES5 support don't allow defining methods or properties that are not iterable, this workaround is necessary.
-
-```javascript
-               if (key === 'indexOf') continue;
-```
-
-We apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
-
-This operation is the reason we checked whether `input` was an `arguments` object, so that we could `parseInt` its keys.
-
-```
-               key = parseInt (key);
-            }
-```
-
-If we're in the block below, `inputType` is `object`.
-
-```javascript
-            else {
-```
-
-If two conditions are met simultaneously, we skip the current `key`, by issuing a `continue` statement. These conditions are:
-- `inherit` is not set.
-- `input` has `key` as an inherited property.
-
-```javascript
-               if (! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
-            }
-```
-
-Notice we combine this conditional with the one with `inputType === 'array'` to avoid an extra comparison. We are here in the inner loop of the library and any possible saving has significant effect on performance.
-
-`input [key]` is the item currently being read by the loop (let's call it `value`). We apply the `value` and the `key` to the `fun`, and store the result in a variable.
-
-Notice that the `fun` receives the `value` as the first argument and the `key` as the second. This inversion is useful since usually the `fun` needs the `value` but not the `key`. In this case, with this argument ordering you can write `function (v) {...}` instead of `function (k, v) {...}`.
-
-```javascript
-            var result = fun (input [key], key);
+         var inner = function (result) {
 ```
 
 For the case of `dale.go`, or the case of `dale.fil` when `result` is not equal to `second`, we append `result` into `output`. As we do this, we increment `index` (which is only defined for these two cases).
@@ -755,45 +685,122 @@ For the case of `dale.go`, or the case of `dale.fil` when `result` is not equal 
             }
 ```
 
-For the case of `dale.stop`, if the `result` is equal to `second`, we return `result` to break the loop. Otherwise, we set `output` to `result`.
+For the case of `dale.obj`:
 
-```javascript
-            else if (what === 'stop') {
-               if (result === second) return result;
-               output = result;
-            }
-```
-
-For the case of `dale.stopNot`, if the `result` is not equal to `second`, we return `result` to break the loop. Otherwise, we set `output` to `result`.
-
-```javascript
-            else if (what === 'stopNot') {
-               if (result !== second) return result;
-               output = result;
-            }
-```
-
-Finally, for the case of `dale.obj`:
-
-- If `result` is `undefined`, no key will be set. We emit a `continue` statement.
-- If `result` is not an `array`, we return `undefined` and print an error message.
+- If `result` is `undefined`, no key will be set. We do nothing.
+- If `result` is not an `array`, we set `output` to `undefined` and print an error message through `dale.clog`.
 - Otherwise, we set the key `result [0]` of `output` to `result [1]`.
 
 ```javascript
-            else {
-               if (result === undefined) continue;
+            else if (what === 'obj') {
+               if (result === undefined) return;
                if (type (result) !== 'array') {
-                  console.log ('Value returned by fun must be an array but instead is of type ' + type (result));
-                  return;
+                  dale.clog ('Value returned by fun must be an array but instead is of type ' + type (result));
+                  output = undefined;
+                  return true;
                }
                output [result [0]] = result [1];
             }
 ```
 
-We close the loop and return `output`.
+For the case of `dale.stop` and `dale.stopNot`, we set `output` to `result`. If we're in `dale.stop` and `result` is equal to `second`, we return `true` to break the loop. We do the same with `dale.stopNot` when `result` is *not* equal to `second`. Otherwise, we return `false`, which will do nothing.
+
+```javascript
+            else {
+               output = result;
+               return what === 'stop' ? result === second : result !== second;
+            }
+```
+
+We close `inner`.
 
 ```javascript
          }
+```
+
+We save the type of `input` in a local variable `inputType`.
+
+```javascript
+         var inputType = type (input);
+```
+
+If `input` is an object, we want to check whether this is an `arguments` object, which we want to treat like an array. To ascertain this we use `Object.prototype.toString`. We use this method instead of our `type` function simply for performance purposes. If it is indeed an `arguments` object, we will convert it into an array.
+
+Note that if `argdetect` is false (which will happen in IE 8 and below), we check whether `input.callee` is a function to ascertain whether this is an `arguments` object. This is a workaround since there seems to be no straightforward way to detect whether a certain object is an `arguments` object for these particular browsers.
+
+```javascript
+         if (inputType === 'object') {
+            if (Object.prototype.toString.call (input) === '[object Arguments]' || (! argdetect && type (input.callee) === 'function')) inputType = 'array', input = [].slice.call (input);
+         }
+```
+
+We're ready to iterate `input`! We first tackle the case where `inputType` is an array.
+
+```javascript
+         if (inputType === 'array') {
+```
+
+We use a `for` loop to iterate over `input`.
+
+```javascript
+            for (var key = 0; key < input.length; key++) {
+```
+
+We call `inner` passing it `result`. `result` will be the result of invoking `fun` with two arguments: `input [key]`, which is the element being iterated, plus the key. Notice that we apply `parseInt` to the key. This is because javascript returns stringified numeric iterators (`'0'`, `'1'`, `'2'`...) when looping an array, instead of numeric keys.
+
+Notice also that the `fun` receives the `value` as the first argument and the `key` as the second. This inversion is useful since usually the `fun` needs the `value` but not the `key`. In this case, with this argument ordering you can write `function (v) {...}` instead of `function (k, v) {...}`.
+
+If `inner` returns `true`, the iteration will be stopped through a `break` statement.
+
+There's nothing else to do, so we close the loop and the case.
+
+```javascript
+               if (inner (fun (input [key], parseInt (key)))) break;
+            }
+         }
+```
+
+If `input` is an object:
+
+```javascript
+         else if (inputType === 'object') {
+```
+
+We iterate `input` with a `for ... in` loop.
+
+```javascript
+            for (var key in input) {
+```
+
+If two conditions are met simultaneously, we skip the current `key`, by issuing a `continue` statement. These conditions are:
+- `inherit` is not set.
+- `input` has `key` as an inherited property.
+
+```javascript
+               if (! inherit && ! input.hasOwnProperty (key)) continue;
+```
+
+We now invoke `inner` with the result of invoking `fun` with two arguments (the element being iterated, plus its key). If this invocation returns `true`, we stop the loop with a `break` statement.
+
+There's nothing else to do, so we close the loop and the case.
+
+```javascript
+               if (inner (fun (input [key], key))) break;
+            }
+         }
+```
+
+If `input` is neither an array nor an object, we invoke `inner` a single time, passing `input` itself as its first argument and `0` as its second. We pass `0` as the second argument because if `input` is neither an array nor an object, we consider it to be an array of one element only - hence, the key of its only element will be `0`.
+
+There's no point in recording whether the invocation of `inner` returned `true`, since we don't need to interrupt an iteration of a single element.
+
+```javascript
+         else inner (fun (input, 0));
+```
+
+At this point, we're done. The return value we need is at `output`. We return it, then close the function returned by `make` and `make` itself.
+
+```javascript
          return output;
       }
    }

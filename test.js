@@ -1,5 +1,5 @@
 /*
-dale - v5.0.3
+dale - v5.0.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -358,6 +358,18 @@ To run the tests:
    check (undefined, dale.times (1, /a/));
    check (undefined, dale.times (1, 1, /a/));
 
+   dale.clog (output = dale.obj (['a', undefined, 'c'], function (v, k) {
+      return [k, v];
+   }));
+
+   check (output, {0: 'a', 1: undefined, 2: 'c'});
+
+   dale.clog (output = dale.go ([undefined], function (v, k) {
+      return v;
+   }));
+
+   check (output, [undefined]);
+
    if (isNode) dale.clog ('\nAll tests passed successfully!\n');
    else        alert ('All tests passed successfully!');
 
@@ -371,10 +383,10 @@ To run the tests:
 
    function forArray () {
       var output = {};
-      for (var user in users.data) {
+      for (var user = 0; user < users.data.length; user++) {
          var User = {};
-         for (var field in users.data [user]) {
-            if (field !== '0') User [users.columns [field]] = users.data [user] [field];
+         for (var field = 0; field < users.data [user].length; field++) {
+            if (field !== 0) User [users.columns [field]] = users.data [user] [field];
          }
          output [users.data [user] [0]] = User;
       }

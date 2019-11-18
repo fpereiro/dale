@@ -1,5 +1,5 @@
 /*
-dale - v5.0.3
+dale - v5.0.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -64,47 +64,45 @@ Please refer to readme.md to read the annotated source.
 
          if (input === undefined) return output;
 
-         var inputType = type (input);
-
-         if      (inputType === 'array')  {}
-         else if (inputType === 'object') {
-            if (Object.prototype.toString.call (input) === '[object Arguments]' || (! argdetect && type (input.callee) === 'function')) inputType = 'array', input = [].slice.call (input);
-         }
-         else inputType = 'array', input = [input];
-
-         for (var key in input) {
-
-            if (inputType === 'array') {
-               if (key === 'indexOf') continue;
-               key = parseInt (key);
-            }
-            else {
-               if (! inherit && ! Object.prototype.hasOwnProperty.call (input, key)) continue;
-            }
-
-            var result = fun (input [key], key);
-
+         var inner = function (result) {
             if      (what === 'go')   output [index++] = result;
             else if (what === 'fil') {
                if (result !== second) output [index++] = result;
             }
-            else if (what === 'stop') {
-               if (result === second) return result;
-               output = result;
-            }
-            else if (what === 'stopNot') {
-               if (result !== second) return result;
-               output = result;
-            }
-            else {
-               if (result === undefined) continue;
+            else if (what === 'obj') {
+               if (result === undefined) return;
                if (type (result) !== 'array') {
                   dale.clog ('Value returned by fun must be an array but instead is of type ' + type (result));
-                  return;
+                  output = undefined;
+                  return true;
                }
                output [result [0]] = result [1];
             }
+            else {
+               output = result;
+               return what === 'stop' ? result === second : result !== second;
+            }
          }
+
+         var inputType = type (input);
+
+         if (inputType === 'object') {
+            if (Object.prototype.toString.call (input) === '[object Arguments]' || (! argdetect && type (input.callee) === 'function')) inputType = 'array', input = [].slice.call (input);
+         }
+
+         if (inputType === 'array') {
+            for (var key = 0; key < input.length; key++) {
+               if (inner (fun (input [key], parseInt (key)))) break;
+            }
+         }
+         else if (inputType === 'object') {
+            for (var key in input) {
+               if (! inherit && ! input.hasOwnProperty (key)) continue;
+               if (inner (fun (input [key], key))) break;
+            }
+         }
+         else inner (fun (input, 0));
+
          return output;
       }
    }
