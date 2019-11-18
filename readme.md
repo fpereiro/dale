@@ -322,7 +322,7 @@ The general idea of this function is quite similar to that of `Array.fold` and `
    - For each `element` in the `input`, it executes the `function`, passing the `element` and the `key` of the element. This function application generates a `result`.
    - If `result` is an array with two elements (`result [0]` and `result [1]`), the key `result [0]` will be set to `result [1]` in either the `base object` or a new object (if no `base object` is provided).
    - If `result` is `undefined`, `output` will remain unchanged.
-   - If `result` is neither an array nor `undefined`, an error will be printed and `dale.obj` will return `undefined`.
+   - If `result` is neither an array of length 2 nor `undefined`, an error will be printed and `dale.obj` will return `false`.
    - If `function` is not a function, an error will be printed and `dale.obj` will return `false`.
 
 ```javascript
@@ -358,7 +358,13 @@ dale.obj ([], function (v) {
 dale.obj (members, function (v) {
    return /thisisinvalid/
 }));
-// returns undefined and prints the following error: `Value returned by fun must be an array but instead is of type regex`
+// returns false and prints the following error: `fun passed to dale.obj must return undefined or an array of length 2 but instead returned a value of type regex`
+
+dale.clog (output = dale.obj (members2, function (v) {
+   return [1, 2, 3];
+}));
+
+// returns false and prints the following error: `fun passed to dale.obj must return undefined or an array of length 2 but instead returned an array of length 0`
 ```
 
 Notice that `dale.obj` always returns an object with zero or more elements, unless one of the invocations to `fun` returns an invalid value.
@@ -465,7 +471,7 @@ If you want dale functions to iterate the inherited properties of an object, pas
 
 ## Logging
 
-For compatibility with old browsers, dale defines and uses `dale.clog`, a function that will default to `console.log` and, if absent, will emit an `alert` statement instead.
+For compatibility with old browsers, dale defines and uses `dale.clog`, a function that will default to `console.log` and, if `console.log` is absent, will emit an `alert` statement instead.
 
 ## Performance
 
@@ -696,15 +702,15 @@ For the case of `dale.go`, or the case of `dale.fil` when `result` is not equal 
 For the case of `dale.obj`:
 
 - If `result` is `undefined`, no key will be set. We do nothing.
-- If `result` is not an `array`, we set `output` to `undefined` and print an error message through `dale.clog`.
+- If `result` is not an `array` of length 2, we set `output` to `false` and print an error message through `dale.clog`.
 - Otherwise, we set the key `result [0]` of `output` to `result [1]`.
 
 ```javascript
             else if (what === 'obj') {
                if (result === undefined) return;
-               if (type (result) !== 'array') {
-                  dale.clog ('Value returned by fun must be an array but instead is of type ' + type (result));
-                  output = undefined;
+               if (type (result) !== 'array' || result.length !== 2) {
+                  dale.clog (type (result) === 'array' ? ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned an array of length ' + result.length) : ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned a value of type ' + type (result)));
+                  output = false;
                   return true;
                }
                output [result [0]] = result [1];

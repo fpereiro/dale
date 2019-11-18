@@ -71,9 +71,9 @@ Please refer to readme.md to read the annotated source.
             }
             else if (what === 'obj') {
                if (result === undefined) return;
-               if (type (result) !== 'array') {
-                  dale.clog ('Value returned by fun must be an array but instead is of type ' + type (result));
-                  output = undefined;
+               if (type (result) !== 'array' || result.length !== 2) {
+                  dale.clog (type (result) === 'array' ? ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned an array of length ' + result.length) : ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned a value of type ' + type (result)));
+                  output = false;
                   return true;
                }
                output [result [0]] = result [1];

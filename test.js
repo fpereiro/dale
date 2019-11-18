@@ -238,7 +238,25 @@ To run the tests:
       return /thisisinvalid/
    }));
 
-   check (output, undefined);
+   check (output, false);
+
+   dale.clog (output = dale.obj (members2, function (v) {
+      return {a: 'b'};
+   }));
+
+   check (output, false);
+
+   dale.clog (output = dale.obj (members2, function (v) {
+      return [];
+   }));
+
+   check (output, false);
+
+   dale.clog (output = dale.obj (members2, function (v) {
+      return [1, 2, 3];
+   }));
+
+   check (output, false);
 
    dale.obj ([], /invalidfun/);
    dale.obj ([], {}, /invalidfun/);
