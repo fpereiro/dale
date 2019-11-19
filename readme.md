@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v5.0.4, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v6.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 dale is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -506,7 +506,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v5.0.4
+dale - v6.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 

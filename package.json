@@ -1,6 +1,6 @@
 {
    "name": "dale",
-   "version": "5.0.4",
+   "version": "6.0.0",
    "description": "Functional javascript loops.",
    "main": "dale.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",
