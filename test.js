@@ -393,7 +393,7 @@ To run the tests:
       // IE<9 requires a timeout so that document.body is accessible.
       setTimeout (function () {
          dale.obj (document.body.attributes, function (v, k) {
-            return [v, k];
+            return [k, v];
          });
          alert ('All tests passed successfully!');
       }, 1);
