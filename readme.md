@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v6.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v6.0.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 dale is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -132,7 +132,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@e074268833c7beef89796ba368b0489e0fbe5caf/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@/dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
@@ -506,7 +506,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v6.0.0
+dale - v6.0.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -790,8 +790,10 @@ If two conditions are met simultaneously, we skip the current `key`, by issuing 
 - `inherit` is not set.
 - `input` has `key` as an inherited property.
 
+We also check that `input` has the `hasOwnProperty` method. Since `input` is an object, you would think that it has the `hasOwnProperty` method. However, when iterating a DOM element's [attributes](https://developer.mozilla.org/en-US/docs/Web/API/Element/attributes) or [style](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style) object in Internet Explorer 8 and below, the method will be absent despite these objects behaving like plain objects. For this reason, we add this extra check. If the method is absent, we won't skip the key since we have no way of ascertaining whether the object actually contains the key or inherited it.
+
 ```javascript
-               if (! inherit && ! input.hasOwnProperty (key)) continue;
+               if (! inherit && input.hasOwnProperty && ! input.hasOwnProperty (key)) continue;
 ```
 
 We now invoke `inner` with the result of invoking `fun` with two arguments (the element being iterated, plus its key). If this invocation returns `true`, we stop the loop with a `break` statement.

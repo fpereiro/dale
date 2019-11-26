@@ -1,5 +1,5 @@
 /*
-dale - v6.0.0
+dale - v6.0.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -389,7 +389,15 @@ To run the tests:
    check (output, [undefined]);
 
    if (isNode) dale.clog ('\nAll tests passed successfully!\n');
-   else        alert ('All tests passed successfully!');
+   else {
+      // IE<9 requires a timeout so that document.body is accessible.
+      setTimeout (function () {
+         dale.obj (document.body.attributes, function (v, k) {
+            return [v, k];
+         });
+         alert ('All tests passed successfully!');
+      }, 1);
+   }
 
    // *** PERFORMANCE ***
 

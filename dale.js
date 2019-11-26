@@ -1,5 +1,5 @@
 /*
-dale - v6.0.0
+dale - v6.0.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -97,7 +97,7 @@ Please refer to readme.md to read the annotated source.
          }
          else if (inputType === 'object') {
             for (var key in input) {
-               if (! inherit && ! input.hasOwnProperty (key)) continue;
+               if (! inherit && input.hasOwnProperty && ! input.hasOwnProperty (key)) continue;
                if (inner (fun (input [key], key))) break;
             }
          }
