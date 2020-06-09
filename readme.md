@@ -117,7 +117,7 @@ Small as it is, dale is superior to writing `for (var a in b)` in the following 
 
 ## Current status of the project
 
-The current version of dale, v6.0.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
+The current version of dale, v6.0.2, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/dale/issues) and [patches](https://github.com/fpereiro/dale/pulls) are welcome. Besides bug fixes or performance improvements, there are no future changes planned.
 
 dale is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -132,7 +132,7 @@ dale is written in Javascript. You can use it in the browser by sourcing the mai
 Or you can use this link to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@7e1be108aa52beef7ad84f8c31649cfa23bc8f53/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@/dale.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install dale`
@@ -506,7 +506,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-dale - v6.0.1
+dale - v6.0.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -686,17 +686,18 @@ We define a local function `inner`, which we'll execute for each item of `output
 
 If `inner` returns `true`, this will mean that the iteration process (defined below) will be stopped.
 
+We will define different versions of `inner` depending on which function we're implementing. Let's start with that for `dale.go`. In this case, we append `result` into `output` and increment `index`.
+
 ```javascript
-         var inner = function (result) {
+         if (what === 'go')       var inner = function (result) {output [index++] = result}
 ```
 
-For the case of `dale.go`, or the case of `dale.fil` when `result` is not equal to `second`, we append `result` into `output`. As we do this, we increment `index` (which is only defined for these two cases).
+For the case of `dale.fil`, if `result` is not equal to `second`, we append `result` into `output` and increment `index`.
 
 ```javascript
-            if      (what === 'go')   output [index++] = result;
-            else if (what === 'fil') {
-               if (result !== second) output [index++] = result;
-            }
+         else if (what === 'fil') var inner = function (result) {
+            if (result !== second) output [index++] = result;
+         }
 ```
 
 For the case of `dale.obj`:
@@ -706,29 +707,23 @@ For the case of `dale.obj`:
 - Otherwise, we set the key `result [0]` of `output` to `result [1]`.
 
 ```javascript
-            else if (what === 'obj') {
-               if (result === undefined) return;
-               if (type (result) !== 'array' || result.length !== 2) {
-                  dale.clog (type (result) === 'array' ? ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned an array of length ' + result.length) : ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned a value of type ' + type (result)));
-                  output = false;
-                  return true;
-               }
-               output [result [0]] = result [1];
+         else if (what === 'obj') var inner = function (result) {
+            if (result === undefined) return;
+            if (type (result) !== 'array' || result.length !== 2) {
+               dale.clog (type (result) === 'array' ? ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned an array of length ' + result.length) : ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned a value of type ' + type (result)));
+               output = false;
+               return true;
             }
+            output [result [0]] = result [1];
+         }
 ```
 
 For the case of `dale.stop` and `dale.stopNot`, we set `output` to `result`. If we're in `dale.stop` and `result` is equal to `second`, we return `true` to break the loop. We do the same with `dale.stopNot` when `result` is *not* equal to `second`. Otherwise, we return `false`, which will do nothing.
 
 ```javascript
-            else {
-               output = result;
-               return what === 'stop' ? result === second : result !== second;
-            }
-```
-
-We close `inner`.
-
-```javascript
+         else var inner = function (result) {
+            output = result;
+            return what === 'stop' ? result === second : result !== second;
          }
 ```
 

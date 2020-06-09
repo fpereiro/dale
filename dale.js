@@ -1,5 +1,5 @@
 /*
-dale - v6.0.1
+dale - v6.0.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -64,24 +64,22 @@ Please refer to readme.md to read the annotated source.
 
          if (input === undefined) return output;
 
-         var inner = function (result) {
-            if      (what === 'go')   output [index++] = result;
-            else if (what === 'fil') {
-               if (result !== second) output [index++] = result;
+         if (what === 'go')       var inner = function (result) {output [index++] = result}
+         else if (what === 'fil') var inner = function (result) {
+            if (result !== second) output [index++] = result;
+         }
+         else if (what === 'obj') var inner = function (result) {
+            if (result === undefined) return;
+            if (type (result) !== 'array' || result.length !== 2) {
+               dale.clog (type (result) === 'array' ? ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned an array of length ' + result.length) : ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned a value of type ' + type (result)));
+               output = false;
+               return true;
             }
-            else if (what === 'obj') {
-               if (result === undefined) return;
-               if (type (result) !== 'array' || result.length !== 2) {
-                  dale.clog (type (result) === 'array' ? ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned an array of length ' + result.length) : ('fun passed to dale.obj must return undefined or an array of length 2 but instead returned a value of type ' + type (result)));
-                  output = false;
-                  return true;
-               }
-               output [result [0]] = result [1];
-            }
-            else {
-               output = result;
-               return what === 'stop' ? result === second : result !== second;
-            }
+            output [result [0]] = result [1];
+         }
+         else var inner = function (result) {
+            output = result;
+            return what === 'stop' ? result === second : result !== second;
          }
 
          var inputType = type (input);
@@ -160,5 +158,4 @@ Please refer to readme.md to read the annotated source.
 
       return acc;
    }
-
 }) ();

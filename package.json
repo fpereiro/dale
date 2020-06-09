@@ -1,10 +1,10 @@
 {
    "name": "dale",
-   "version": "6.0.1",
+   "version": "6.0.2",
    "description": "Functional javascript loops.",
    "main": "dale.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",
-   "contributors": ["Federico Pereiro <fpereiro@gmail.com>"],
+   "contributors": ["Federico Pereiro <fpereiro@gmail.com>", "Andrew Owen <yumaikas94@gmail.com>"],
    "license": [{
       "type": "Public Domain",
       "url": "http://github.com/fpereiro/dale#license"
